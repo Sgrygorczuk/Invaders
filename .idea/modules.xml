@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Invaders.iml" filepath="$PROJECT_DIR$/.idea/modules/Invaders.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android/Invaders.android.iml" filepath="$PROJECT_DIR$/.idea/modules/android/Invaders.android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Invaders.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Invaders.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/Invaders.desktop.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/Invaders.desktop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/html/Invaders.html.iml" filepath="$PROJECT_DIR$/.idea/modules/html/Invaders.html.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ios/Invaders.ios.iml" filepath="$PROJECT_DIR$/.idea/modules/ios/Invaders.ios.iml" />
+    </modules>
+  </component>
+</project>
