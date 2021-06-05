@@ -18,6 +18,7 @@ import com.packt.invaders.objects.animatedObjects.Bandit;
 import com.packt.invaders.objects.staticObjects.Bullet;
 import com.packt.invaders.objects.staticObjects.UserTrain;
 import com.packt.invaders.screens.textures.MainScreenTextures;
+import com.packt.invaders.tools.DebugRendering;
 import com.packt.invaders.tools.MusicControl;
 import com.packt.invaders.tools.TextAlignment;
 import com.packt.invaders.tools.TiledSetUp;
@@ -39,6 +40,7 @@ class MainScreen extends ScreenAdapter {
     private final Invaders invaders;      //Game object that holds the settings
     private MusicControl musicControl;            //Plays Music
     private final TextAlignment textAlignment = new TextAlignment();
+    private DebugRendering debugRendering;        //Draws debug hit-boxes
 
     //=========================================== Text =============================================
     //Font used for the user interaction
@@ -56,7 +58,8 @@ class MainScreen extends ScreenAdapter {
 
     UserTrain userTrain;
     private final Array<Bandit> bandits = new Array<>();
-    private final Array<Bullet> bullets = new Array<>();
+    private final Array<Bullet> playerBullets = new Array<>();
+    private final Array<Bullet> banditBullets = new Array<>();
 
     /**
      * Purpose: Grabs the info from main screen that holds asset manager
@@ -91,6 +94,8 @@ class MainScreen extends ScreenAdapter {
         showObjects();      //Sets up player and font
         showTiled();
         musicControl.showMusic(0);
+        debugRendering = new DebugRendering(camera);
+        debugRendering.showRender();
     }
 
 
@@ -165,6 +170,28 @@ class MainScreen extends ScreenAdapter {
     public void render(float delta) {
         if(!pausedFlag) { update(delta); }      //If the game is not paused update the variables
         draw();                                 //Draws everything
+        debugRender();
+    }
+
+    /**
+     Purpose: Draws hit-boxes for all the objects
+     */
+    private void debugRender(){
+        debugRendering.startEnemyRender();
+        for(Bandit bandit : bandits){
+            bandit.drawDebug(debugRendering.getShapeRenderEnemy());
+        }
+        debugRendering.setShapeRendererBackgroundColor(Color.YELLOW);
+        debugRendering.endEnemyRender();
+
+        debugRendering.startUserRender();
+        debugRendering.endUserRender();
+
+        debugRendering.startBackgroundRender();
+        debugRendering.endBackgroundRender();
+
+        debugRendering.startCollectibleRender();
+        debugRendering.endCollectibleRender();
     }
 
     //=================================== Updating Methods =========================================
@@ -176,8 +203,9 @@ class MainScreen extends ScreenAdapter {
     private void update(float delta){
         handleInput();
         removeBullets();
-        for(Bullet bullet : bullets){ bullet.update();}
-        updateBandits();
+        for(Bullet bullet : playerBullets){ bullet.update();}
+        for(Bullet bullet : banditBullets){ bullet.update();}
+        updateBandits(delta);
     }
 
 
@@ -193,7 +221,7 @@ class MainScreen extends ScreenAdapter {
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            createBullet();
+            createPlayerBullet();
         }
     }
 
@@ -201,39 +229,63 @@ class MainScreen extends ScreenAdapter {
     //Bullet Updates
     //==============================================================================================
 
-    private void createBullet(){
-        if(bullets.size < 5) {
+    private void createPlayerBullet(){
+        if(playerBullets.size < 1) {
             Bullet newBullet = new Bullet(userTrain.getX() + userTrain.getWidth() / 2f,
-                    userTrain.getHeight(), mainScreenTextures.bulletTexture);
-            bullets.add(newBullet);
+                    userTrain.getHeight(), mainScreenTextures.bulletTexture, true);
+            playerBullets.add(newBullet);
+        }
+    }
+
+    private void createBanditBullet(float x, float width, float y){
+        if(banditBullets.size < 5) {
+            Bullet newBullet = new Bullet(x + width/2f,
+                    y, mainScreenTextures.bulletTexture, false);
+            banditBullets.add(newBullet);
         }
     }
 
     private void removeBullets(){
-        for(Bullet bullet : bullets){
+        for(Bullet bullet : playerBullets){
             if(bullet.getY() > 420){
-                bullets.removeValue(bullet, true);
+                playerBullets.removeValue(bullet, true);
             }
             for(Bandit bandit : bandits){
                 if(bandit.isColliding(bullet.getHitBox())){
-                    bullets.removeValue(bullet, true);
+                    playerBullets.removeValue(bullet, true);
                     bandits.removeValue(bandit, true);
                 }
             }
         }
+
+        for(Bullet bullet : banditBullets){
+            if(bullet.getY() < 0){
+                banditBullets.removeValue(bullet, true);
+            }
+            if(bullet.isColliding(userTrain.getHitBox())){
+                banditBullets.removeValue(bullet, true);
+                System.out.println("ow");
+            }
+        }
     }
+
 
     //==============================================================================================
     //Bandits Updates
     //==============================================================================================
 
-    void updateBandits(){
+    void updateBandits(float delta){
         boolean hitEdge = false;
 
         for(Bandit bandit : bandits){
-            bandit.update();
+            bandit.update(delta);
             if(bandit.getHitBox().x + bandit.getHitBox().width > WORLD_WIDTH || bandit.getHitBox().x < 0){
                 hitEdge = true;
+            }
+
+            if(bandit.getShootFlag()){
+                createBanditBullet(bandit.getX(), bandit.getWidth(), bandit.getY() + bandit.getHeight()/3f);
+                bandit.setShootFlag();
             }
         }
 
@@ -263,7 +315,8 @@ class MainScreen extends ScreenAdapter {
         batch.begin();
         batch.draw(mainScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         for(Bandit bandit : bandits){bandit.drawAnimations(batch);}
-        for(Bullet bullet : bullets){bullet.draw(batch);}
+        for(Bullet bullet : playerBullets){bullet.draw(batch);}
+        for(Bullet bullet : banditBullets){bullet.draw(batch);}
         userTrain.draw(batch);
         batch.end();
     }

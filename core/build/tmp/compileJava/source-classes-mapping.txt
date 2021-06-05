@@ -34,8 +34,6 @@ com/packt/invaders/Const.java
  com.packt.invaders.Const
 com/packt/invaders/objects/animatedObjects/Bandit.java
  com.packt.invaders.objects.animatedObjects.Bandit
-com/packt/invaders/tools/TexturePackerTool.java
- com.packt.invaders.tools.TexturePackerTool
 com/packt/invaders/tools/TiledSetUp.java
  com.packt.invaders.tools.TiledSetUp
 com/packt/invaders/objects/staticObjects/staticObjects.java
