@@ -2,12 +2,23 @@ package com.packt.invaders.screens.textures;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+/**
+ * Here we initialize all the textures that the menu screen uses
+ */
 public class MenuScreenTextures {
 
     //============================================= Textures =======================================
-    public Texture backgroundTexture;
-    public Texture menuBackgroundTexture;   //Pop up menu to show menu buttons and Help screen
+    public Texture backgroundTexture;       //Background
+    public Texture coinSlotTexture;         //A coin slot to give more of an arcade feel
+    public Texture pullDownTexture;         //The screen wipe
+    public Texture trainTexture;            //Texture of the train
+    public Texture wheelTexture;            //Texture of the wheel
+
+    //================================ Sprite Sheets ===============================================
+    public TextureRegion[][] buttonSpriteSheet;     //The button
+    public TextureRegion[][] joystickSpriteSheet;   //The joystick
 
     public MenuScreenTextures(){ showTextures(); }
 
@@ -15,8 +26,19 @@ public class MenuScreenTextures {
      * Purpose: Sets up all of the textures
      */
     private void showTextures(){
-        backgroundTexture = new Texture(Gdx.files.internal("UI/TestBackground.png"));
-        menuBackgroundTexture = new Texture(Gdx.files.internal("UI/TestPopUp.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("Sprites/MenuScreenBackground.png"));
+        coinSlotTexture = new Texture(Gdx.files.internal("Sprites/CoinSlot.png"));
+        pullDownTexture = new Texture(Gdx.files.internal("Sprites/PullDown.png"));
+        wheelTexture = new Texture(Gdx.files.internal("Sprites/TrainWheel.png"));
+        trainTexture = new Texture(Gdx.files.internal("Sprites/Train.png"));
+
+        Texture buttonTexturePath = new Texture(Gdx.files.internal("Sprites/PlayButton.png"));
+        buttonSpriteSheet = new TextureRegion(buttonTexturePath).split(
+                buttonTexturePath.getWidth()/2, buttonTexturePath.getHeight());
+
+        Texture joystickTexturePath = new Texture(Gdx.files.internal("Sprites/Joystick.png"));
+        joystickSpriteSheet = new TextureRegion(joystickTexturePath).split(
+                joystickTexturePath.getWidth()/3, joystickTexturePath.getHeight());
     }
 
 }

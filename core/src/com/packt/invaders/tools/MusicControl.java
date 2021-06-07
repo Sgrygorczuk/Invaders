@@ -19,12 +19,16 @@ public class MusicControl {
     //================================= Data =======================================================
     //Holds all the names for the songs
     String[] songSelect = new String[]{
-            "Music/TestMusic.wav",
+            "Music/MainMenu.wav",
+            "Music/GameMusic.mp3",
     };
 
     //Holds all the names for the SFX
     String[] soundSelect = new String[]{
-            "SFX/TestButton.wav"
+            "SFX/GunShot.wav",
+            "SFX/MetalHit.wav",
+            "SFX/Coin.wav",
+            "SFX/Thud.wav",
     };
 
     //====================================== Constructor ===========================================
@@ -53,6 +57,13 @@ public class MusicControl {
      * @param soundSelection which SFX we're going to play
      */
     public void playSFX(int soundSelection) {musicManager.get(soundSelect[soundSelection], Sound.class).play(1/2f * sfxVolume); }
+
+
+    /**
+     * Purpose: Plays a SFX from the list
+     * @param soundSelection which SFX we're going to play
+     */
+    public void playSFX(int soundSelection, float volume) {musicManager.get(soundSelect[soundSelection], Sound.class).play(volume); }
 
     /**
      * Generic turn the sound on and off

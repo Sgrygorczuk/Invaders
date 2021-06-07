@@ -94,34 +94,39 @@ public class CreditsScreen extends ScreenAdapter{
     }
 
     private void showCredits(){
-        credits.add("Title");
+        credits.add("Train Invaders");
+        credits.add(" ");
         credits.add("Programming");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add("P1");
+        credits.add("Sebastian Grygorczuk");
         credits.add(" ");
         credits.add("Art");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add(" ");
-        credits.add("Level Design");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add("P1");
+        credits.add("Sebastian Grygorczuk");
         credits.add(" ");
         credits.add("Music");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add("P1");
+        credits.add("From FreeSound.org");
+        credits.add(" ");
+        credits.add("Western themetune.wav");
+        credits.add("by juskiddink");
+        credits.add(" ");
+        credits.add("CowBoy Rythym Solo (louder ver)");
+        credits.add("by brokai");
         credits.add(" ");
         credits.add("SFX");
-        credits.add("P1");
-        credits.add("P1");
-        credits.add("P1");
+        credits.add("Gun for Loy.wav");
+        credits.add("by martian");
+        credits.add(" ");
+        credits.add("MetalGong 12.wav");
+        credits.add("by Department64");
+        credits.add(" ");
+        credits.add("Single Coin Return.wav");
+        credits.add("by tweeterdj");
+        credits.add(" ");
+        credits.add("Fruit Impact 2");
+        credits.add("by OwlStorm");
+        credits.add(" ");
         credits.add(" ");
         credits.add("Thank You");
-        credits.add("Game Jame");
+        credits.add("For Playing");
 
     }
 
@@ -134,8 +139,7 @@ public class CreditsScreen extends ScreenAdapter{
     @Override
     public void render(float delta) {
         update(delta);
-        if( Gdx.input.isKeyJustPressed(Input.Keys.E) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) ||
-                position - TEXT_OFFSET * credits.size > WORLD_HEIGHT){
+        if( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || position - TEXT_OFFSET * credits.size > WORLD_HEIGHT){
             invaders.setScreen(new LoadingScreen(invaders, 0));
         }
         draw();
@@ -172,7 +176,7 @@ public class CreditsScreen extends ScreenAdapter{
             textAlignment.centerText(batch, bitmapFont, credits.get(i), WORLD_WIDTH/2f, position - TEXT_OFFSET * i);
         }
         bitmapFont.getData().setScale(0.3f);
-        textAlignment.centerText(batch, bitmapFont, "End", 240, 15 );
+        textAlignment.centerText(batch, bitmapFont, "End - Space", WORLD_WIDTH - 60, 15 );
 
         batch.end();
     }

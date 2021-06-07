@@ -6,14 +6,33 @@ import com.badlogic.gdx.math.Rectangle;
 import static com.packt.invaders.Const.TILED_HEIGHT;
 import static com.packt.invaders.Const.TILED_WIDTH;
 
-
+/**
+ * Generic Object holds the hit box that most entities will use and any functions
+ * that may be necessary to modify the hit box
+ */
 public class GenericObjects {
-    protected Rectangle hitBox;
 
+    //==============================================================================================
+    //Variables
+    //==============================================================================================
+
+    protected Rectangle hitBox; //The hit box everything is based off of
+
+    //==============================================================================================
+    //Constructor
+    //==============================================================================================
+
+    /**
+     * @param x position
+     * @param y position
+     */
     public GenericObjects(float x , float y){
         this.hitBox = new Rectangle(x, y, TILED_WIDTH, TILED_HEIGHT);
     }
 
+    //==============================================================================================
+    //Methods
+    //==============================================================================================
 
     public Rectangle getHitBox(){return hitBox;}
 

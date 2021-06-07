@@ -43,7 +43,6 @@ public class LoadingScreen extends ScreenAdapter{
     private final Invaders invaders;
     private LoadingScreenTextures loadingScreenTextures;
     private final TextAlignment textAlignment = new TextAlignment();
-    private DebugRendering debugRendering;
 
     //====================================== Fonts =================================================
     private BitmapFont bitmapFont = new BitmapFont();
@@ -59,10 +58,6 @@ public class LoadingScreen extends ScreenAdapter{
 
     //State of the progress bar
     private float progress = 0;
-
-    private static final float LOADING_TIME = .2F;
-    private float loadTimer = LOADING_TIME;
-    private String loadingString = "Loading";
 
 
     /**
@@ -102,8 +97,6 @@ public class LoadingScreen extends ScreenAdapter{
         //Sets up the camera
         showCamera();           //Sets up camera through which objects are draw through
         loadingScreenTextures = new LoadingScreenTextures();
-        debugRendering = new DebugRendering(camera);
-        debugRendering.setShapeRendererBackgroundShapeType(ShapeRenderer.ShapeType.Filled);
         showObjects();
         loadAssets();           //Loads the stuff into the asset manager
     }
@@ -137,10 +130,14 @@ public class LoadingScreen extends ScreenAdapter{
         invaders.getAssetManager().load("Fonts/Font.fnt", BitmapFont.class, bitmapFontParameter);
 
         //=================== Load Music to Asset Manager ==========================================
-        invaders.getAssetManager().load("Music/TestMusic.wav", Music.class);
+        invaders.getAssetManager().load("Music/MainMenu.wav", Music.class);
+        invaders.getAssetManager().load("Music/GameMusic.mp3", Music.class);
 
         //========================== Load SFX to Asset Manager =====================================
-        invaders.getAssetManager().load("SFX/TestButton.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/MetalHit.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/GunShot.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/Coin.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/Thud.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
         invaders.getAssetManager().load("Tiled/Map.tmx", TiledMap.class);
@@ -170,7 +167,6 @@ public class LoadingScreen extends ScreenAdapter{
         else { progress = invaders.getAssetManager().getProgress();}
 
         updateTimer(delta);
-        updateLoadingString(delta);
     }
 
     /**
@@ -186,24 +182,6 @@ public class LoadingScreen extends ScreenAdapter{
     }
 
     /**
-     * Purpose: Makes dot appear while loading so it looks like something is happening
-     * @param delta timer to count down
-     */
-    private void updateLoadingString(float delta){
-        loadTimer -= delta;
-        //Add a "." if the length is short enough
-        if(loadingString.length() < 10 && loadTimer <= 0){
-            loadingString += ".";
-            loadTimer = LOADING_TIME;
-        }
-        //Reset to default
-        else if(loadTimer <= 0){
-            loadingString = "Loading";
-            loadTimer = LOADING_TIME;
-        }
-    }
-
-    /**
      * Purpose: Allows us to go to a different screen each time we enter the LoadingScreen
      */
     private void goToNewScreen(){
@@ -214,6 +192,10 @@ public class LoadingScreen extends ScreenAdapter{
             }
             case 1:{
                 invaders.setScreen(new MainScreen(invaders, 0));
+                break;
+            }
+            case 2:{
+                invaders.setScreen(new CreditsScreen(invaders));
                 break;
             }
             default:{
@@ -242,22 +224,11 @@ public class LoadingScreen extends ScreenAdapter{
             batch.draw(loadingScreenTextures.logoTexture, WORLD_WIDTH/2f - LOGO_WIDTH/2f, WORLD_HEIGHT/2f - LOGO_HEIGHT/2f,   LOGO_WIDTH, LOGO_HEIGHT);
             batch.end();
         }
-        //Loading Screen with Progress bar
+        //Loading Screen
         else{
             batch.begin();
-            batch.draw(loadingScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-            batch.draw(loadingScreenTextures.loadingBarTexture, WORLD_WIDTH/2 - LOADING_WIDTH/2f, LOADING_Y + LOADING_HEIGHT/2f, LOADING_WIDTH, LOADING_HEIGHT);
-            batch.end();
-
-            debugRendering.startBackgroundRender();
-            debugRendering.getShapeRendererBackground().rect(WORLD_WIDTH/2 - LOADING_WIDTH/2f + LOADING_OFFSET, LOADING_Y + LOADING_HEIGHT/2f + LOADING_OFFSET,
-                    progress * (LOADING_WIDTH - 2 * LOADING_OFFSET), LOADING_HEIGHT -  2 * LOADING_OFFSET);
-            debugRendering.endBackgroundRender();
-
-            batch.begin();
-            textAlignment.centerText(batch, bitmapFont, loadingString, WORLD_WIDTH/2f,  LOADING_Y + 1.1f * LOADING_HEIGHT);
+            batch.draw(loadingScreenTextures.backgroundTexture, 0, -30);
             batch.end();}
-
     }
 
     /**

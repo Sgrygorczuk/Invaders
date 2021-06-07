@@ -1,6 +1,7 @@
 package com.packt.invaders.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.invaders.main.Invaders;
+import com.packt.invaders.objects.staticObjects.Train;
 import com.packt.invaders.screens.textures.MenuScreenTextures;
 import com.packt.invaders.tools.MusicControl;
 import com.packt.invaders.tools.TextAlignment;
@@ -29,45 +31,45 @@ import static com.packt.invaders.Const.TEXT_OFFSET;
 import static com.packt.invaders.Const.WORLD_HEIGHT;
 import static com.packt.invaders.Const.WORLD_WIDTH;
 
-
+/**
+ * Menu Screen is the first screen the player encounters, here they get the feel for the game
+ * We display a arcade style set up with a joy stick and a button giving the player the idea
+ * what kind of game is being presented.
+ *
+ * Train was initially the player space ship but due to it's size it had to be swapped for a sheriff
+ * the extra code adds for a fun toy in the menu screen
+ */
 public class MenuScreen extends ScreenAdapter{
 
     //=========================================== Variable =========================================
 
     //================================== Image processing ===========================================
-    private SpriteBatch batch = new SpriteBatch();
+    private final SpriteBatch batch = new SpriteBatch();
     private Viewport viewport;
     private Camera camera;
-
-    //=================================== Buttons ==================================================
-    private Stage menuStage;
-    private ImageButton[] menuButtons;
-    private ImageButton backButton;
 
     //===================================== Tools ==================================================
     private MusicControl musicControl;
     private MenuScreenTextures menuScreenTextures;
     private final Invaders invaders;
-    private final TextAlignment textAlignment = new TextAlignment();
 
     //=========================================== Text =============================================
     //Font used for the user interaction
     private BitmapFont bitmapFont = new BitmapFont();
 
     //============================================= Flags ==========================================
-    private boolean helpFlag;      //Tells if help menu is up or not
-    private boolean creditsFlag;   //Tells if credits menu is up or not
 
     //=================================== Miscellaneous Vars =======================================
-    //String used on the buttons
-    private final String[] buttonText = new String[]{"Play", "Help", "Credits"};
-    private float backButtonY = 10;
+    int joystickState = 0;                      //Changes how the joystick is viewed, 0 - Natural, 1 - left, 2 - right
+    int buttonState = 0;                        //Changes how the button is view 0 - Button Up, 1 - Button Down
+    float pullDownPosition = WORLD_HEIGHT + 20; //Keeps track of where the wipe is
+    private Train train;
 
     //================================ Set Up ======================================================
 
     /**
      * Purpose: Grabs the info from main screen that holds asset manager
-     * Input: BasicTemplet
+     * Input: Invaders
      */
     MenuScreen(Invaders invaders) { this.invaders = invaders;}
 
@@ -78,18 +80,21 @@ public class MenuScreen extends ScreenAdapter{
     @Override
     public void resize(int width, int height) { viewport.update(width, height); }
 
-    //===================================== Show ===================================================
+    //==============================================================================================
+    // Show
+    //==============================================================================================
 
     /**
      * Purpose: Central function for initializing the screen
      */
     @Override
     public void show() {
-        showCamera();           //Sets up camera through which objects are draw through
-        menuScreenTextures = new MenuScreenTextures();
-        showButtons();          //Sets up the buttons
-        showObjects();          //Sets up the font
-        musicControl.showMusic(0);
+        showCamera();                                       //Sets up camera through which objects are draw through
+        menuScreenTextures = new MenuScreenTextures();      //Get the textures
+        showObjects();                                      //Sets up the font
+        musicControl = new MusicControl(invaders.getAssetManager()); //Sets up music
+        musicControl.setMusicVolume(0.2f);
+        musicControl.showMusic(0);              //Sets up music to play 0th track
     }
 
     /**
@@ -103,112 +108,15 @@ public class MenuScreen extends ScreenAdapter{
     }
 
     /**
-     * Purpose: Sets up the button
-     */
-    private void showButtons(){
-        menuStage = new Stage(new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT));
-        Gdx.input.setInputProcessor(menuStage); //Give power to the menuStage
-
-        setUpMainButtons(); //Places the three main Play|Help|Credits buttons on the screen
-        setUpExitButton();  //Palaces the exit button that leaves the Help and Credits menus
-    }
-
-    /**
-     * Purpose: Sets main three main Play|Help|Credits buttons on the screen
-    */
-    private void setUpMainButtons(){
-        //Set up all the buttons used by the stage
-        menuButtons = new ImageButton[3];
-
-        //Get the textures of the buttons
-        Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
-        TextureRegion[][] buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
-                menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
-
-        //Places the three main Play|Help|Credits buttons on the screen
-        for(int i = 0; i < 3; i ++){
-            menuButtons[i] =  new ImageButton(new TextureRegionDrawable(buttonSpriteSheet[0][0]), new TextureRegionDrawable(buttonSpriteSheet[0][1]));
-            menuButtons[i].setPosition(20, 2*WORLD_HEIGHT/3 - (MENU_BUTTON_HEIGHT + 10) * i);
-            menuButtons[i].setWidth(MENU_BUTTON_WIDTH);
-            menuButtons[i].setHeight(MENU_BUTTON_HEIGHT);
-            menuStage.addActor(menuButtons[i]);
-
-            final int finalI = i;
-            menuButtons[i].addListener(new ActorGestureListener() {
-                @Override
-                public void tap(InputEvent event, float x, float y, int count, int button) {
-                    super.tap(event, x, y, count, button);
-                    musicControl.playSFX(0);
-                    //Launches the game
-                    if(finalI == 0){
-                        musicControl.playSFX(0);
-                        invaders.setScreen(new LoadingScreen(invaders, 1));
-                    }
-                    //Turns on the help menu
-                    else if(finalI == 1){
-                        for (ImageButton imageButton : menuButtons) { imageButton.setVisible(false); }
-                        helpFlag = true;
-                        backButton.setVisible(true);
-                        //The button moves to different place for help and credits menu
-                        backButtonY = 40;
-                        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-                    }
-                    //Turns on the credits menu
-                    else{
-                        for (ImageButton imageButton : menuButtons) { imageButton.setVisible(false); }
-                        creditsFlag = true;
-                        backButton.setVisible(true);
-                        //The button moves to different place for help and credits menu
-                        backButtonY = 10;
-                        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Purpose: Turn off the credits or heap menu
-     */
-    private void setUpExitButton(){
-        //Sets up the texture
-        Texture menuButtonTexturePath = new Texture(Gdx.files.internal("UI/Button.png"));
-        TextureRegion[][] buttonSpriteSheet = new TextureRegion(menuButtonTexturePath).split(
-                menuButtonTexturePath.getWidth()/2, menuButtonTexturePath.getHeight());
-
-        //Sets up the position
-        backButton = new ImageButton(new TextureRegionDrawable(buttonSpriteSheet[0][0]), new TextureRegionDrawable(buttonSpriteSheet[0][1]));
-        backButton.setPosition(WORLD_WIDTH/2f - MENU_BUTTON_WIDTH/2f, backButtonY);
-        backButton.setWidth(MENU_BUTTON_WIDTH);
-        backButton.setHeight(MENU_BUTTON_HEIGHT);
-        menuStage.addActor(backButton);
-        backButton.setVisible(false);
-        //Sets up to turn of the help menu if clicked
-        backButton.addListener(new ActorGestureListener() {
-            @Override
-            public void tap(InputEvent event, float x, float y, int count, int button) {
-                super.tap(event, x, y, count, button);
-                musicControl.playSFX(0);
-                helpFlag = false;
-                creditsFlag = false;
-                //Turn on all buttons but turn off this one
-                for (ImageButton imageButton : menuButtons) {
-                    imageButton.setVisible(true);
-                }
-                backButton.setVisible(false);
-            }
-        });
-    }
-
-    /**
      * Purpose: Sets up objects such as debugger, musicControl, fonts and others
      */
     private void showObjects(){
-        musicControl = new MusicControl(invaders.getAssetManager());
-
         if(invaders.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = invaders.getAssetManager().get("Fonts/Font.fnt");}
         bitmapFont.getData().setScale(0.6f);
         bitmapFont.setColor(Color.BLACK);
+
+        train = new Train(WORLD_WIDTH/2f, WORLD_HEIGHT/2f, menuScreenTextures.trainTexture,
+                menuScreenTextures.wheelTexture);
     }
 
     //=================================== Execute Time Methods =====================================
@@ -222,25 +130,57 @@ public class MenuScreen extends ScreenAdapter{
         draw();
     }
 
+    //==============================================================================================
+    // Update
+    //==============================================================================================
+
     /**
      Purpose: Updates all the moving components and game variables
      Input: @delta - timing variable
      */
     private void update(float delta){
-        updateCamera();
+        handleInput();
+        if(buttonState == 1){updatePullDown();}
     }
-
 
     /**
-     * Purpose: Resize the menuStage viewport in case the screen gets resized (Desktop)
-     *          Moving the camera if that's part of the game
+     * Purpose: Central Input Handling function
      */
-    public void updateCamera() {
-        //Resize the menu Stage if the screen changes size
-        menuStage.getViewport().update(viewport.getScreenWidth(), viewport.getScreenHeight(), true);
+    private void handleInput() {
+        //Moves the joy stick left and right and if there's no input keeps it in neutral
+        if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            joystickState = 1;
+            train.moveTrain(-5);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            joystickState = 2;
+            train.moveTrain(5);
+        }
+        else{
+            joystickState = 0;
+        }
+
+        //If player clicks space we wipe down and then just to the game screen
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
+        }
     }
 
-    //========================================== Drawing ===========================================
+    /**
+     * Purpose: Wipe the title card down and move us to the next screen
+     */
+    void updatePullDown(){
+        pullDownPosition -= 10;
+        if(pullDownPosition <= -30){
+            musicControl.stopMusic();
+            invaders.setScreen(new LoadingScreen(invaders, 1));
+        }
+    }
+
+    //==============================================================================================
+    // Drawing
+    //==============================================================================================
 
     /**
      * Purpose: Central drawing function, from here everything gets drawn
@@ -253,25 +193,12 @@ public class MenuScreen extends ScreenAdapter{
         //Batch setting up texture before drawing buttons
         batch.begin();
         batch.draw(menuScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-        //Draw the pop up menu
-        if(helpFlag  || creditsFlag){batch.draw(menuScreenTextures.menuBackgroundTexture, 10, 10, WORLD_WIDTH - 20, WORLD_HEIGHT-20);}
-        batch.end();
-
-        menuStage.draw(); // Draws the buttons
-
-        batch.begin();
-        //Draws the Play|Help|Credits text on buttons
-        if(!helpFlag && !creditsFlag){drawButtonText();}
-        //Draws the Help Text
-        else if(helpFlag){
-            drawInstructions();
-            drawBackButtonText();
-        }
-        //Draws the credits text
-        else{
-            drawCredits();
-            drawBackButtonText();
-        }
+        train.draw(batch);
+        batch.draw(menuScreenTextures.joystickSpriteSheet[0][joystickState], 100, 80);
+        batch.draw(menuScreenTextures.buttonSpriteSheet[0][buttonState], WORLD_WIDTH/2f
+                - menuScreenTextures.buttonSpriteSheet[0][0].getRegionWidth()/2f, 60);
+        batch.draw(menuScreenTextures.coinSlotTexture, WORLD_WIDTH - 200, 60);
+        batch.draw(menuScreenTextures.pullDownTexture, 0, pullDownPosition);
         batch.end();
     }
 
@@ -284,69 +211,10 @@ public class MenuScreen extends ScreenAdapter{
     }
 
     /**
-     * Purpose: Draws the text on the Play|Help|Credits buttons
-    */
-    private void drawButtonText(){
-        bitmapFont.getData().setScale(0.6f);
-        for(int i = 0; i < 3; i ++) {
-            textAlignment.centerText(batch, bitmapFont, buttonText[i], 20 + MENU_BUTTON_WIDTH/2f,
-                    2*WORLD_HEIGHT/3 + 0.65f * MENU_BUTTON_HEIGHT - (MENU_BUTTON_HEIGHT + 10) * i);
-        }
-    }
-
-    /**
-     * Purpose: Draws the backButton text
-     */
-    protected void drawBackButtonText(){
-        bitmapFont.getData().setScale(0.6f);
-        textAlignment.centerText(batch, bitmapFont, "Back", WORLD_WIDTH/2f,
-                backButtonY + 0.65f * MENU_BUTTON_HEIGHT);
-    }
-
-    /**
-     * Purpose: Draws the text for instructions
-     */
-    private void drawInstructions() {
-        bitmapFont.getData().setScale(.5f);
-        textAlignment.centerText(batch, bitmapFont, "Instruction", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START);
-        bitmapFont.getData().setScale(.35f);
-
-        textAlignment.centerText(batch, bitmapFont, "Move - WASD", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #2", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 2 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Action #3", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START  - 3 * TEXT_OFFSET);
-        textAlignment.centerText(batch, bitmapFont, "Actions #4", WORLD_WIDTH / 2f, INSTRUCTIONS_Y_START - 4 * TEXT_OFFSET);
-    }
-
-
-    /**
-     *  Purpose: Draws the credits screen
-    */
-    private void drawCredits(){
-        //Title
-        bitmapFont.getData().setScale(0.5f);
-        textAlignment.centerText(batch, bitmapFont, "Credits", WORLD_WIDTH/2f, WORLD_HEIGHT-45);
-        bitmapFont.getData().setScale(0.32f);
-
-        textAlignment.centerText(batch, bitmapFont, "Programming & Art", WORLD_WIDTH/2f, WORLD_HEIGHT - 80);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 95);
-
-        textAlignment.centerText(batch, bitmapFont, "Music", WORLD_WIDTH/2f, WORLD_HEIGHT - 125);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 140);
-
-        textAlignment.centerText(batch, bitmapFont, "SFX - ########", WORLD_WIDTH/2f, WORLD_HEIGHT - 170);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f - 120, WORLD_HEIGHT - 190);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 190);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f + 120, WORLD_HEIGHT - 190);
-
-        textAlignment.centerText(batch, bitmapFont, "Font - ########", WORLD_WIDTH/2f, WORLD_HEIGHT - 255);
-        textAlignment.centerText(batch, bitmapFont, "########", WORLD_WIDTH/2f, WORLD_HEIGHT - 275);
-    }
-
-    /**
      * Purpose: Gets rid of all visuals
     */
     @Override
     public void dispose() {
-        menuStage.dispose();
+
     }
 }

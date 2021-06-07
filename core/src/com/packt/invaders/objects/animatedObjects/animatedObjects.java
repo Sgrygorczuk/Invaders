@@ -3,22 +3,45 @@ package com.packt.invaders.objects.animatedObjects;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.packt.invaders.objects.GenericObjects;
 
+/**
+ * The animated object holds structures that animated objects such as player and bandit need
+ * helps to initialize the animation and timing var that will be used by it's children classes.
+ */
 public class animatedObjects extends GenericObjects {
 
-    protected TextureRegion[][] spriteSheet;
-    protected Animation<TextureRegion> animation;
-    float animationFrameTime = 4f;
-    float animationTime = 0;
+    //==============================================================================================
+    //Variables
+    //==============================================================================================
 
-    boolean isFacingRight = false;
+    protected TextureRegion[][] spriteSheet;            //The sprite sheet used
+    protected Animation<TextureRegion> animation;       //The animation that will be played
+    float animationFrameTime = 4f;                      //The time between frames
+    float animationTime = 0;                            //Current time
+    boolean isFacingRight = false;                      //Which way is it looking
+    Rectangle hurtBox;  //Used by bandit and player to make the collision between bullet and themselves more precise.
 
+    //==============================================================================================
+    //Constructor
+    //==============================================================================================
+
+    /**
+     * @param x position
+     * @param y position
+     * @param spriteSheet the animation frames
+     */
     public animatedObjects(float x, float y, TextureRegion[][] spriteSheet) {
         super(x, y);
         this.spriteSheet = spriteSheet;
         setUpAnimations();
     }
+
+    //==============================================================================================
+    //Methods
+    //==============================================================================================
 
     /**
      * Purpose: Sets up the animation loops in all of the directions
@@ -41,8 +64,31 @@ public class animatedObjects extends GenericObjects {
         return animation;
     }
 
+    /**
+     * @param delta timing var
+     * Purpose: updates the timing var which changes what animation frame we're looking at
+     */
     public void update(float delta) {
         animationTime += delta;
+    }
+
+    /**
+     * @param other the other box
+     * @return gives back if the two items are touching
+     * Purpose: checks if something is colliding with the hurt box
+     */
+    @Override
+    public boolean isColliding(Rectangle other) {
+        return this.hurtBox.overlaps(other);
+    }
+
+    /**
+     * @param shapeRenderer
+     * Purpose: Draws the debug of the hurt box rather than hitBox
+     */
+    @Override
+    public void drawDebug(ShapeRenderer shapeRenderer) {
+        shapeRenderer.rect(hurtBox.x, hurtBox.y, hurtBox.width, hurtBox.height);
     }
 
     /**
@@ -54,7 +100,7 @@ public class animatedObjects extends GenericObjects {
 
         currentFrame = animation.getKeyFrame(animationTime);
 
-        batch.draw(currentFrame, isFacingRight ? hitBox.x + currentFrame.getRegionWidth() : hitBox.x, hitBox.y, isFacingRight ? -currentFrame.getRegionWidth() : currentFrame.getRegionWidth(), currentFrame.getRegionHeight());
+        batch.draw(currentFrame,  hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 
 }
