@@ -5,7 +5,6 @@ Controls:
   A/Left Arrow Key - Move Left
   D/Right Arrow Key - Move Right
   Space - Action/Shoot 
-```
 
 Idea Summary: 
 Train Invaders is a Space Invader like game with a twist of using a 2.5D perspective. Rather than 
@@ -49,3 +48,5 @@ important folders.
         4) Tiled - Used to import data from tiled, a software that allows me to place objects 
                 and give them variables. Really useful for creating different formations 
                 and filling the enemies with data without having to create them by hand. 
+                
+```
