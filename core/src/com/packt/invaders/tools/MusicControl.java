@@ -25,10 +25,11 @@ public class MusicControl {
 
     //Holds all the names for the SFX
     String[] soundSelect = new String[]{
-            "SFX/GunShot.wav",
-            "SFX/MetalHit.wav",
-            "SFX/Coin.wav",
-            "SFX/Thud.wav",
+            "SFX/GunShot.wav",  //0
+            "SFX/MetalHit.wav", //1
+            "SFX/Coin.wav",     //2
+            "SFX/Thud.wav",     //3
+            "SFX/Boom.wav",     //4
     };
 
     //====================================== Constructor ===========================================

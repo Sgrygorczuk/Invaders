@@ -56,6 +56,7 @@ public class MenuScreen extends ScreenAdapter{
     //=========================================== Text =============================================
     //Font used for the user interaction
     private BitmapFont bitmapFont = new BitmapFont();
+    private final TextAlignment textAlignment = new TextAlignment();
 
     //============================================= Flags ==========================================
 
@@ -63,6 +64,8 @@ public class MenuScreen extends ScreenAdapter{
     int joystickState = 0;                      //Changes how the joystick is viewed, 0 - Natural, 1 - left, 2 - right
     int buttonState = 0;                        //Changes how the button is view 0 - Button Up, 1 - Button Down
     float pullDownPosition = WORLD_HEIGHT + 20; //Keeps track of where the wipe is
+    float cloudXPosition = 0;
+    int levelChoice;
     private Train train;
 
     //================================ Set Up ======================================================
@@ -112,10 +115,10 @@ public class MenuScreen extends ScreenAdapter{
      */
     private void showObjects(){
         if(invaders.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = invaders.getAssetManager().get("Fonts/Font.fnt");}
-        bitmapFont.getData().setScale(0.6f);
+        bitmapFont.getData().setScale(1f);
         bitmapFont.setColor(Color.BLACK);
 
-        train = new Train(WORLD_WIDTH/2f, WORLD_HEIGHT/2f, menuScreenTextures.trainTexture,
+        train = new Train(WORLD_WIDTH/2f - menuScreenTextures.trainTexture.getWidth()/2f, WORLD_HEIGHT/2f, menuScreenTextures.trainTexture,
                 menuScreenTextures.wheelTexture);
     }
 
@@ -141,6 +144,7 @@ public class MenuScreen extends ScreenAdapter{
     private void update(float delta){
         handleInput();
         if(buttonState == 1){updatePullDown();}
+        System.out.println(cloudXPosition);
     }
 
     /**
@@ -151,19 +155,29 @@ public class MenuScreen extends ScreenAdapter{
         if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)){
             joystickState = 1;
             train.moveTrain(-5);
+            cloudXPosition += 5;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             joystickState = 2;
             train.moveTrain(5);
+            cloudXPosition -= 5;
         }
         else{
             joystickState = 0;
         }
 
+        //Makes sure the levels don't go too far off the screen
+        if(cloudXPosition > 0){
+            cloudXPosition = 0;
+        }
+
+        if(cloudXPosition < -1000){
+            cloudXPosition = -1000;
+        }
+
         //If player clicks space we wipe down and then just to the game screen
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            buttonState = 1;
-            musicControl.playSFX(2, 1.5f);
+            levelSelect();
         }
     }
 
@@ -174,7 +188,43 @@ public class MenuScreen extends ScreenAdapter{
         pullDownPosition -= 10;
         if(pullDownPosition <= -30){
             musicControl.stopMusic();
-            invaders.setScreen(new LoadingScreen(invaders, 1));
+            //Go to Credits
+            if(levelChoice == 4){
+                bitmapFont.setColor(Color.WHITE);
+                invaders.setScreen(new LoadingScreen(invaders, 2));
+            }
+            //Go to Game Screen
+            else{
+                invaders.setScreen(new LoadingScreen(invaders, 1, levelChoice));
+            }
+        }
+    }
+
+    void levelSelect(){
+        if(cloudXPosition <= 0 && cloudXPosition >= -100 && invaders.getLevelUnlocked()[0]){
+            levelChoice = 0;
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
+        }
+        else if(cloudXPosition <= -200 && cloudXPosition >= -300 && invaders.getLevelUnlocked()[1]){
+            levelChoice = 1;
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
+        }
+        else if(cloudXPosition <= -450 && cloudXPosition >= -550 && invaders.getLevelUnlocked()[2]){
+            levelChoice = 2;
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
+        }
+        else if(cloudXPosition <= -700 && cloudXPosition >= -800 && invaders.getLevelUnlocked()[3]){
+            levelChoice = 3;
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
+        }
+        else if(cloudXPosition <= -900 && cloudXPosition >= -1000){
+            levelChoice = 4;
+            buttonState = 1;
+            musicControl.playSFX(2, 1.5f);
         }
     }
 
@@ -193,6 +243,8 @@ public class MenuScreen extends ScreenAdapter{
         //Batch setting up texture before drawing buttons
         batch.begin();
         batch.draw(menuScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        drawLevelSelect();
+        batch.draw(menuScreenTextures.coversTexture, 0, WORLD_HEIGHT-menuScreenTextures.coversTexture.getHeight());
         train.draw(batch);
         batch.draw(menuScreenTextures.joystickSpriteSheet[0][joystickState], 100, 80);
         batch.draw(menuScreenTextures.buttonSpriteSheet[0][buttonState], WORLD_WIDTH/2f
@@ -200,6 +252,60 @@ public class MenuScreen extends ScreenAdapter{
         batch.draw(menuScreenTextures.coinSlotTexture, WORLD_WIDTH - 200, 60);
         batch.draw(menuScreenTextures.pullDownTexture, 0, pullDownPosition);
         batch.end();
+    }
+
+    private void drawLevelSelect(){
+        for(int i = 0; i < 4; i++){
+            drawCloud(WORLD_WIDTH/2f - menuScreenTextures.cloudTexture.getWidth()/2f + 250 * i, i);
+        }
+        drawCreditCloud(WORLD_WIDTH/2f - menuScreenTextures.cloudTexture.getWidth()/2f + 250 * 4);
+    }
+
+    private void drawCloud(float x, int spot){
+        batch.draw(menuScreenTextures.cloudTexture, x + cloudXPosition,
+                WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight());
+        if(invaders.getLevelUnlocked()[spot]){
+            if(invaders.getLevelScore()[spot] != -1){
+                drawStars(x + menuScreenTextures.cloudTexture.getWidth()/2f + cloudXPosition,
+                        invaders.getLevelScore()[spot]);
+            }
+            textAlignment.centerText(batch, bitmapFont, spot + 1 + "",
+                    x + menuScreenTextures.cloudTexture.getWidth()/2f + cloudXPosition,
+                    WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight()/2f);
+        }
+        else{
+            batch.draw(menuScreenTextures.lockTexture,
+                    x + menuScreenTextures.cloudTexture.getWidth()/3f + cloudXPosition,
+                    WORLD_HEIGHT - menuScreenTextures.cloudTexture.getHeight() + 10);
+        }
+    }
+
+    private void drawCreditCloud(float x){
+        batch.draw(menuScreenTextures.cloudTexture, x + cloudXPosition,
+                WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight());
+        textAlignment.centerText(batch, bitmapFont, "Credits",
+                    x + menuScreenTextures.cloudTexture.getWidth()/2f + cloudXPosition,
+                    WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight()/2f);
+    }
+
+    /**
+     * Purpose: Draws the three stars
+     */
+    void drawStars(float x, int score){
+        drawStar(x - 30, score > 50 ? 1 : 0);
+        drawStar(x, score > 75 ? 1 : 0);
+        drawStar(x - 30/2f, score > 90 ? 1 : 0);
+    }
+
+    /**
+     * @param x place where the star is
+     * @param place and if the accuracy was good enough either gray or gold
+     * Purpose: Draws each start in detail
+     */
+    void drawStar(float x, int place){
+        batch.draw(menuScreenTextures.starSpriteSheet[0][place], x,
+                WORLD_HEIGHT - 45,
+                30, 30);
     }
 
     /**

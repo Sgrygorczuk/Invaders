@@ -20,14 +20,18 @@ public class MainScreenTextures {
     public Texture cloudTexture;        //The clouds that hold the stat values
     public Texture engGamePanelTexture; //The Square panel where all the stats are shown at end of game
     public Texture skullTexture;        //The skull that's show when player loes
+    public Texture boomTexture;
 
     //================================ Sprite Sheets ===============================================
-    public TextureRegion[][] banditsSpriteSheet;    //Bandit sprite sheet
-    public TextureRegion[][] playerSpriteSheet;     //Player sprite sheet
-    public TextureRegion[][] joystickSpriteSheet;   //The joy stick
-    public TextureRegion[][] starSpriteSheet;       //The empty or filled star
+    public TextureRegion[][] banditsSpriteSheet;        //Bandit sprite sheet
+    public TextureRegion[][] horseBanditSpriteSheet;    //Horse Bandit sprite sheet
+    public TextureRegion[][] dynamiteSpriteSheet;       //Dynamite sprite sheet
+    public TextureRegion[][] playerSpriteSheet;         //Player sprite sheet
+    public TextureRegion[][] joystickSpriteSheet;       //The joy stick
+    public TextureRegion[][] starSpriteSheet;           //The empty or filled star
     public TextureRegion[][] restartButtonSpriteSheet;  //Reset button
     public TextureRegion[][] exitButtonSpriteSheet;     //Exit button
+    public TextureRegion[][] nextLevelButtonSpriteSheet;     //Next Level button
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -45,10 +49,19 @@ public class MainScreenTextures {
         backgroundTexture = new Texture(Gdx.files.internal("Sprites/Game_Background.png"));
         menuBackgroundTexture = new Texture(Gdx.files.internal("Sprites/MenuScreenBackground.png"));
         pullDownTexture = new Texture(Gdx.files.internal("Sprites/PullDown.png"));
+        boomTexture = new Texture(Gdx.files.internal("Sprites/Boom.png"));
 
         Texture banditTexturePath = new Texture(Gdx.files.internal("Sprites/Bandit.png"));
         banditsSpriteSheet = new TextureRegion(banditTexturePath).split(
                 banditTexturePath.getWidth()/10, banditTexturePath.getHeight());
+
+        Texture horseBanditTexture = new Texture(Gdx.files.internal("Sprites/EnemyHorse.png"));
+        horseBanditSpriteSheet = new TextureRegion(horseBanditTexture).split(
+                horseBanditTexture.getWidth()/10, horseBanditTexture.getHeight());
+
+        Texture dynamiteTexturePath = new Texture(Gdx.files.internal("Sprites/Dynamite.png"));
+        dynamiteSpriteSheet = new TextureRegion(dynamiteTexturePath).split(
+                dynamiteTexturePath.getWidth(), dynamiteTexturePath.getHeight());
 
         Texture playerTexturePath = new Texture(Gdx.files.internal("Sprites/Player.png"));
         playerSpriteSheet = new TextureRegion(playerTexturePath).split(
@@ -70,6 +83,9 @@ public class MainScreenTextures {
         exitButtonSpriteSheet = new TextureRegion(exitTexturePath).split(
                 exitTexturePath.getWidth()/3, exitTexturePath.getHeight());
 
+        Texture nextLevelTexturePath = new Texture(Gdx.files.internal("Sprites/NextLvlButton.png"));
+        nextLevelButtonSpriteSheet = new TextureRegion(nextLevelTexturePath).split(
+                nextLevelTexturePath.getWidth()/3, nextLevelTexturePath.getHeight());
     }
 
 }

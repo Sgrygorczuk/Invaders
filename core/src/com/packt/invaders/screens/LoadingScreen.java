@@ -49,6 +49,7 @@ public class LoadingScreen extends ScreenAdapter{
 
     //=================================== Miscellaneous Vars =======================================
     private final int screenPath; //Tells us which screen to go to from here
+    private int levelChoice;
 
     //Timing variables, keeps the logo on for at least 2 second
     private boolean loadingFirstTime = false;
@@ -78,6 +79,18 @@ public class LoadingScreen extends ScreenAdapter{
     public LoadingScreen(Invaders invaders, int screenPath) {
         this.invaders = invaders;
         this.screenPath = screenPath;
+    }
+
+    /**
+     * Purpose: General Constructor for moving between screens
+     * @param invaders game object with data
+     * @param screenPath tells us which screen to go to from here
+     * @param levelChoice tells us which level in the main screen to play
+     */
+    public LoadingScreen(Invaders invaders, int screenPath, int levelChoice) {
+        this.invaders = invaders;
+        this.screenPath = screenPath;
+        this.levelChoice = levelChoice;
     }
 
     /**
@@ -138,9 +151,14 @@ public class LoadingScreen extends ScreenAdapter{
         invaders.getAssetManager().load("SFX/GunShot.wav", Sound.class);
         invaders.getAssetManager().load("SFX/Coin.wav", Sound.class);
         invaders.getAssetManager().load("SFX/Thud.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/Boom.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
-        invaders.getAssetManager().load("Tiled/Map.tmx", TiledMap.class);
+        invaders.getAssetManager().load("Tiled/Map1.tmx", TiledMap.class);
+        invaders.getAssetManager().load("Tiled/Map2.tmx", TiledMap.class);
+        invaders.getAssetManager().load("Tiled/Map3.tmx", TiledMap.class);
+        invaders.getAssetManager().load("Tiled/Map4.tmx", TiledMap.class);
+
     }
 
     //=================================== Execute Time Methods =====================================
@@ -191,7 +209,7 @@ public class LoadingScreen extends ScreenAdapter{
                 break;
             }
             case 1:{
-                invaders.setScreen(new MainScreen(invaders, 0));
+                invaders.setScreen(new MainScreen(invaders, levelChoice));
                 break;
             }
             case 2:{

@@ -1,23 +1,23 @@
-com/packt/invaders/main/Invaders.java
- com.packt.invaders.main.Invaders
-com/packt/invaders/screens/textures/MainScreenTextures.java
- com.packt.invaders.screens.textures.MainScreenTextures
-com/packt/invaders/tools/MusicControl.java
- com.packt.invaders.tools.MusicControl
-com/packt/invaders/objects/GenericObjects.java
- com.packt.invaders.objects.GenericObjects
-com/packt/invaders/screens/CreditsScreen.java
- com.packt.invaders.screens.CreditsScreen
+com/packt/invaders/objects/staticObjects/staticObjects.java
+ com.packt.invaders.objects.staticObjects.staticObjects
+com/packt/invaders/screens/textures/CreditsScreenTextures.java
+ com.packt.invaders.screens.textures.CreditsScreenTextures
+com/packt/invaders/objects/animatedObjects/Bandit.java
+ com.packt.invaders.objects.animatedObjects.Bandit
 com/packt/invaders/tools/TextAlignment.java
  com.packt.invaders.tools.TextAlignment
+com/packt/invaders/objects/GenericObjects.java
+ com.packt.invaders.objects.GenericObjects
+com/packt/invaders/screens/textures/MainScreenTextures.java
+ com.packt.invaders.screens.textures.MainScreenTextures
+com/packt/invaders/Const.java
+ com.packt.invaders.Const
 com/packt/invaders/screens/MainScreen.java
  com.packt.invaders.screens.MainScreen
-com/packt/invaders/screens/textures/MenuScreenTextures.java
- com.packt.invaders.screens.textures.MenuScreenTextures
 com/packt/invaders/objects/animatedObjects/Player.java
  com.packt.invaders.objects.animatedObjects.Player
-com/packt/invaders/screens/MenuScreen.java
- com.packt.invaders.screens.MenuScreen
+com/packt/invaders/tools/TiledSetUp.java
+ com.packt.invaders.tools.TiledSetUp
 com/packt/invaders/objects/staticObjects/Bullet.java
  com.packt.invaders.objects.staticObjects.Bullet
 com/packt/invaders/tools/DebugRendering.java
@@ -28,15 +28,15 @@ com/packt/invaders/objects/animatedObjects/animatedObjects.java
  com.packt.invaders.objects.animatedObjects.animatedObjects
 com/packt/invaders/screens/textures/LoadingScreenTextures.java
  com.packt.invaders.screens.textures.LoadingScreenTextures
-com/packt/invaders/screens/textures/CreditsScreenTextures.java
- com.packt.invaders.screens.textures.CreditsScreenTextures
+com/packt/invaders/tools/MusicControl.java
+ com.packt.invaders.tools.MusicControl
+com/packt/invaders/main/Invaders.java
+ com.packt.invaders.main.Invaders
+com/packt/invaders/screens/CreditsScreen.java
+ com.packt.invaders.screens.CreditsScreen
 com/packt/invaders/screens/LoadingScreen.java
  com.packt.invaders.screens.LoadingScreen
-com/packt/invaders/Const.java
- com.packt.invaders.Const
-com/packt/invaders/objects/animatedObjects/Bandit.java
- com.packt.invaders.objects.animatedObjects.Bandit
-com/packt/invaders/tools/TiledSetUp.java
- com.packt.invaders.tools.TiledSetUp
-com/packt/invaders/objects/staticObjects/staticObjects.java
- com.packt.invaders.objects.staticObjects.staticObjects
+com/packt/invaders/screens/textures/MenuScreenTextures.java
+ com.packt.invaders.screens.textures.MenuScreenTextures
+com/packt/invaders/screens/MenuScreen.java
+ com.packt.invaders.screens.MenuScreen

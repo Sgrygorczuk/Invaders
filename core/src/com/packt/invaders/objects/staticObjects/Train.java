@@ -30,10 +30,10 @@ public class Train extends staticObjects{
     public Train(float x, float y, Texture texture, Texture wheel) {
         super(x, y, texture);
         wheelOne = new Sprite(wheel);
-        wheelOne.setPosition(x + 60, y - 10);
+        wheelOne.setPosition(x + 10, y - 10);
 
         wheelTwo = new Sprite(wheel);
-        wheelTwo.setPosition(x + texture.getWidth() - 60, y - 10);
+        wheelTwo.setPosition(x + texture.getWidth() - 120, y - 10);
     }
 
     //==============================================================================================
@@ -45,9 +45,9 @@ public class Train extends staticObjects{
      * @param speed how fast the train is moving
      */
     public void moveTrain(float speed){
-        hitBox.x += speed;
-        wheelOne.setPosition(hitBox.x + 60, hitBox.y - 10);
-        wheelTwo.setPosition(hitBox.x + hitBox.width - 60, hitBox.y - 10);
+        //hitBox.x += speed;
+        wheelOne.setPosition(hitBox.x + 10, hitBox.y - 10);
+        wheelTwo.setPosition(hitBox.x + hitBox.width - 120, hitBox.y - 10);
 
         if(hitBox.x <= 80){
             hitBox.x = 80;

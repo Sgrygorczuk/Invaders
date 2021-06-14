@@ -1,10 +1,8 @@
 package com.packt.invaders.objects.animatedObjects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
-import static com.packt.invaders.Const.WORLD_WIDTH;
 
 /**
  * This is where the enemy of the game reside. Each bandit keeps track of their own shooting
@@ -23,6 +21,7 @@ public class Bandit extends animatedObjects{
     private static final float SHOOT_PAUSE_MIN = 1f;    //Min amount of time to wait before ready to shoot
     private static final float SHOOT_PAUSE_MAX = 4f;    //Max amount of time to wait before ready to shoot
     private float shootTimer;   //Counter till ready to shoot again
+    private int health;
 
     //==============================================================================================
     //Constructor
@@ -35,10 +34,13 @@ public class Bandit extends animatedObjects{
      * @param mod modifier of the enemy's size
      * Purpose: Create the enemy
      */
-    public Bandit(float x, float y, TextureRegion[][] spriteSheet, float mod) {
+    public Bandit(float x, float y, TextureRegion[][] spriteSheet, int health, float mod) {
         super(x, y, spriteSheet);
         hitBox.width = spriteSheet[0][0].getRegionWidth() * mod;
         hitBox.height = spriteSheet[0][0].getRegionHeight() * mod;
+
+        //Set the health of the enemy
+        this.health = health;
 
         //Moves the enemy back a bit based on their height
         hitBox.y += 2f * hitBox.height;
@@ -53,6 +55,11 @@ public class Bandit extends animatedObjects{
     //==============================================================================================
     //Methods
     //==============================================================================================
+
+
+    public int getHealth() { return health; }
+
+    public void takeDamage(){ health--;}
 
     /**
      * @param delta timing var used to update shoot timer

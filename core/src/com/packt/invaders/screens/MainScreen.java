@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -62,6 +63,8 @@ class MainScreen extends ScreenAdapter {
     int joystickState = 0;      //Tells us the position of joy stick
     int exitButtonState = 0;    //Tells us the position of exit button
     int restartButtonState = 1; //Tells us the position of restart button
+    int nextLevelButtonState = 0; //Tells us the position of next level button
+    int currentButton = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final Array<String> levelNames = new Array<>(); //Names of all the lvls in order
@@ -72,9 +75,18 @@ class MainScreen extends ScreenAdapter {
     private final Array<Bullet> banditBullets = new Array<>();  //List of enemy bullets
 
     double shotFired = 0;   //How many shots the player shot
+    double shotsHit = 0;
     double deadBandits = 0; //How many bandits are dead
     int playerLive = 3;     //How many lives the player has left
     float pullDownPosition = -30; //Where the screen wipe is
+
+
+    boolean explosion = false;
+    float explosionX = 0;
+    float explosionY = 0;
+    private static final float BOOM_TIME = 0.25f;
+    private float boomTimer = BOOM_TIME;
+
 
     //==============================================================================================
     //Set Up
@@ -88,7 +100,10 @@ class MainScreen extends ScreenAdapter {
         this.invaders = invaders;
 
         this.tiledSelection = tiledSelection;
-        levelNames.add("Tiled/Map.tmx");
+        levelNames.add("Tiled/Map1.tmx");
+        levelNames.add("Tiled/Map2.tmx");
+        levelNames.add("Tiled/Map3.tmx");
+        levelNames.add("Tiled/Map4.tmx");
 
         pausedFlag = true; //Start the game of pauses allowing for wipe to happen
     }
@@ -131,38 +146,69 @@ class MainScreen extends ScreenAdapter {
         Array<Vector2> banditsPositions = tiledSetUp.getLayerCoordinates("Bandits");
         Array<String> banditsNames = tiledSetUp.getLayerNames("Bandits");
         for(int i = 0; i < banditsPositions.size; i++){
-            float mod = banditSizeMod(banditsNames.get(i));
+            float mod = banditSizeMod(banditsNames.get(i).charAt(0));
             bandits.add(new Bandit(banditsPositions.get(i).x, banditsPositions.get(i).y,
-                    mainScreenTextures.banditsSpriteSheet, mod));
+                    getTexture(banditsNames.get(i).charAt(1)), setHealth(banditsNames.get(i).charAt(1)), mod));
         }
     }
 
     /**
-     * @param name name imported from tiled
+     * @param size first char in the tiled objects name
      * @return size modifier
      * Purpose: read the data from tiled and adjust the size of bandits based on it
      */
-    private float banditSizeMod(String name){
+    private float banditSizeMod(Character size){
         float mod = 0;
-        switch (name){
-            case "1":{
+        switch (size){
+            case '1':{
                 mod = 0.2f;
                 break;
             }
-            case "2":{
+            case '2':{
                 mod = 0.4f;
                 break;
             }
-            case "3":{
+            case '3':{
                 mod = 0.6f;
                 break;
             }
-            case "4":{
+            case '4':{
                 mod = 0.8f;
                 break;
             }
         }
         return mod;
+    }
+
+    private TextureRegion[][] getTexture(Character texture){
+        TextureRegion[][] textureRegion = mainScreenTextures.banditsSpriteSheet;
+        switch (texture){
+            case '0':{
+                textureRegion = mainScreenTextures.banditsSpriteSheet;
+                break;
+            }
+            case '1':{
+                textureRegion = mainScreenTextures.horseBanditSpriteSheet;
+                break;
+            }
+            case '2':{
+                textureRegion = mainScreenTextures.dynamiteSpriteSheet;
+                break;
+            }
+        }
+        return textureRegion;
+    }
+
+    int setHealth(Character health){
+        if(health == '1'){
+            return 2;
+        }
+        else if(health == '2'){
+            return 4;
+        }
+        else{
+            return 1;
+        }
     }
 
     /**
@@ -268,13 +314,30 @@ class MainScreen extends ScreenAdapter {
 
             //If the game has ended and the screen is down move to a different screen or reload
             if(pullDownPosition <= -30 && gameState == 1){
-                if(restartButtonState == 2){
-                    musicControl.stopMusic();
-                    invaders.setScreen(new LoadingScreen(invaders, 1));
+                if(!lostFlag && tiledSelection < 3){
+                    //Reload this level
+                    if(restartButtonState == 2){
+                        musicControl.stopMusic();
+                        invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
+                    }
+                    //To the Next Level
+                    else if(exitButtonState == 2){
+                        musicControl.stopMusic();
+                        invaders.setScreen(new LoadingScreen(invaders, 1,
+                                tiledSelection + 1));
+                    }
                 }
-                else if(exitButtonState == 2){
-                    musicControl.stopMusic();
-                    invaders.setScreen(new LoadingScreen(invaders, 2));
+                else{
+                    //Reload this level
+                    if(restartButtonState == 2){
+                        musicControl.stopMusic();
+                        invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
+                    }
+                    //Back to Main Menu
+                    else if(exitButtonState == 2){
+                        musicControl.stopMusic();
+                        invaders.setScreen(new LoadingScreen(invaders, 0));
+                    }
                 }
             }
 
@@ -284,6 +347,17 @@ class MainScreen extends ScreenAdapter {
                 gameState = 1;
                 bitmapFont.setColor(Color.WHITE);
                 bitmapFont.getData().setScale(0.6f);
+
+                //Save the data if the player won
+                if(!lostFlag) {
+                    //Unlocks next level
+                    if (tiledSelection < 3) {
+                        invaders.unlockLevel(tiledSelection + 1);
+                    }
+                    //Updates score if it's bigger then previous
+                    if(invaders.getLevelScore()[tiledSelection] < (int) (shotsHit/shotFired * 100f))
+                    invaders.setLevelScore(tiledSelection, (int) (shotsHit/shotFired * 100f));
+                }
             }
         }
     }
@@ -334,6 +408,7 @@ class MainScreen extends ScreenAdapter {
         for(Bullet bullet : playerBullets){ bullet.update();}
         for(Bullet bullet : banditBullets){ bullet.update();}
         updateBandits(delta);
+        if(explosion){ boomTimerMethod(delta); }
     }
 
 
@@ -352,6 +427,12 @@ class MainScreen extends ScreenAdapter {
         //Shoot
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             createPlayerBullet();
+        }
+
+        //Shoot
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            musicControl.stopMusic();
+            invaders.setScreen(new LoadingScreen(invaders, 0));
         }
     }
 
@@ -408,18 +489,77 @@ class MainScreen extends ScreenAdapter {
                 musicControl.playSFX(3, 4f);
             }
             //If the bullet hits an enemy kill it, the enemy and update counters
-            for(Bandit bandit : bandits){
-                if(bandit.isColliding(bullet.getHitBox())){
+            for(int i = 0; i < bandits.size; i++){
+                if(bandits.get(i).isColliding(bullet.getHitBox())){
+                    //Always destroy the bullet
                     playerBullets.removeValue(bullet, true);
-                    bandits.removeValue(bandit, true);
-                    deadBandits++;
-                    shotFired++;
-                    musicControl.playSFX(1, 0.2f);
+
+                    //If we hit a TNT explode
+                    if(bandits.get(i).getHealth() > 2){
+                        explosion(i);
+                    }
+                    //Else damage the bandit
+                    else {
+                        banditDamage(i);
+                    }
+
                     break;
                 }
             }
         }
     }
+
+    void banditDamage(int i){
+        bandits.get(i).takeDamage();
+        if(bandits.get(i).getHealth() <= 0){
+            bandits.removeValue(bandits.get(i), true);
+            deadBandits++;
+        }
+        shotsHit++;
+        shotFired++;
+        musicControl.playSFX(1, 0.2f);
+    }
+
+    void explosion(int i){
+        explosionY = bandits.get(i).getY();
+        explosionX = bandits.get(i).getX();
+
+        //Check that there is a possible bandit to the right
+        if(i + 1 < bandits.size){
+            if(bandits.get(i + 1).getY() == explosionY) {
+                bandits.removeValue(bandits.get(i + 1), true);
+                deadBandits++;
+            }
+        }
+        //Remove the bomb
+        bandits.removeValue(bandits.get(i), true);
+
+        //Check that there is a possible bandit to the left
+        if(i - 1 > 0){
+            if(bandits.get(i - 1).getY() == explosionY) {
+                bandits.removeValue(bandits.get(i - 1), true);
+                deadBandits++;
+            }
+        }
+
+        musicControl.playSFX(4, 0.2f);
+        explosion = true;
+        shotsHit++;
+        shotFired++;
+    }
+
+    /**
+     * Counts down until we can start raining again
+     * @param delta timing var
+     */
+    public void boomTimerMethod(float delta) {
+        boomTimer -= delta;
+        if (boomTimer <= 0) {
+            boomTimer = BOOM_TIME;
+            explosion = false;
+        }
+    }
+
 
     /**
      * Updates and remove all the bullets shot by the enemies
@@ -471,7 +611,7 @@ class MainScreen extends ScreenAdapter {
             }
 
             //If the bandit is ready and they in the right spot they can shoot a bullet
-            if(bandits.get(i).getShootFlag() && i > bandits.size - 5){
+            if(bandits.get(i).getShootFlag() && i > bandits.size - 5 && bandits.get(i).getHealth() < 3){
                 createBanditBullet(bandits.get(i).getX(), bandits.get(i).getWidth(), bandits.get(i).getY() + bandits.get(i).getHeight()/3f);
                 bandits.get(i).setShootFlag();
             }
@@ -532,6 +672,13 @@ class MainScreen extends ScreenAdapter {
     void drawGame(){
         batch.draw(mainScreenTextures.backgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         for(Bandit bandit : bandits){bandit.drawAnimations(batch);}
+        if(explosion){
+            batch.draw(mainScreenTextures.boomTexture,
+                    explosionX - mainScreenTextures.boomTexture.getWidth()/4f,
+                    explosionY - mainScreenTextures.boomTexture.getHeight()/4f,
+                    mainScreenTextures.boomTexture.getWidth()/2f,
+                    mainScreenTextures.boomTexture.getHeight()/2f);
+        }
         for(Bullet bullet : playerBullets){bullet.draw(batch);}
         for(Bullet bullet : banditBullets){bullet.draw(batch);}
         player.drawAnimations(batch);
@@ -549,7 +696,7 @@ class MainScreen extends ScreenAdapter {
         //Lives Left
         drawIconAndText(mainScreenTextures.playerProfileTexture, "" + (int) playerLive, 400, 40);
         //Accuracy
-        String accuracy = shotFired == 0 ? 100 + "%" : "" + (int) (deadBandits/shotFired * 100f) + "%";
+        String accuracy = shotFired == 0 ? 100 + "%" : "" + (int) (shotsHit/shotFired * 100f) + "%";
         drawIconAndText(mainScreenTextures.accuracyTexture, accuracy, 600, 45);
     }
 
@@ -576,8 +723,14 @@ class MainScreen extends ScreenAdapter {
     void drawEndScreen(){
         batch.draw(mainScreenTextures.menuBackgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         batch.draw(mainScreenTextures.joystickSpriteSheet[0][joystickState], 100, 80);
-        batch.draw(mainScreenTextures.restartButtonSpriteSheet[0][restartButtonState], 300, 80);
-        batch.draw(mainScreenTextures.exitButtonSpriteSheet[0][exitButtonState], 500, 80);
+        if(tiledSelection < 3 && !lostFlag) {
+            batch.draw(mainScreenTextures.restartButtonSpriteSheet[0][restartButtonState], 300, 80);
+            batch.draw(mainScreenTextures.nextLevelButtonSpriteSheet[0][exitButtonState], 500, 80);
+        }
+        else{
+            batch.draw(mainScreenTextures.restartButtonSpriteSheet[0][restartButtonState], 300, 80);
+            batch.draw(mainScreenTextures.exitButtonSpriteSheet[0][exitButtonState], 500, 80);
+        }
         batch.draw(mainScreenTextures.engGamePanelTexture, WORLD_WIDTH/2f - mainScreenTextures.engGamePanelTexture.getWidth()/2f,
                 WORLD_HEIGHT - mainScreenTextures.engGamePanelTexture.getHeight() - 10);
         //If you lost you get skull
@@ -597,9 +750,9 @@ class MainScreen extends ScreenAdapter {
     void drawStars(){
         drawStar(WORLD_WIDTH/2f - 75, 0,
                 deadBandits/shotFired * 100 > 50 ? 1 : 0);
-        drawStar(WORLD_WIDTH/2f, 0, deadBandits/shotFired * 100 > 75 ? 1 : 0);
+        drawStar(WORLD_WIDTH/2f, 0, shotsHit/shotFired * 100 > 75 ? 1 : 0);
         drawStar(WORLD_WIDTH/2f - 75/2f, 20,
-                deadBandits/shotFired * 100 > 90 ? 1 : 0);
+                shotsHit/shotFired * 100 > 90 ? 1 : 0);
     }
 
     /**

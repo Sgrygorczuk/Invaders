@@ -87,7 +87,7 @@ public class CreditsScreen extends ScreenAdapter{
      * Purpose: Sets up objects such as debugger, musicControl, fonts and others
      */
     private void showObjects(){
-        bitmapFont.setColor(Color.BLACK);
+        bitmapFont.setColor(Color.WHITE);
         if(invaders.getAssetManager().isLoaded("Fonts/Font.fnt")){bitmapFont = invaders.getAssetManager().get("Fonts/Font.fnt");}
         bitmapFont.getData().setScale(0.45f);
 

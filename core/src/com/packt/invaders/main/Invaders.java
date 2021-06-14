@@ -9,8 +9,27 @@ import com.packt.invaders.screens.LoadingScreen;
 
 public class Invaders extends Game {
 
+	boolean [] levelUnlocked = new boolean[]{true, false, false, false};
+	int [] levelScore = new int[]{-1, -1 , -1, -1};
+
 	//Holds the UI images and sound files
 	private final AssetManager assetManager = new AssetManager();
+
+	public boolean[] getLevelUnlocked() {
+		return levelUnlocked;
+	}
+
+	public void unlockLevel(int position){
+		levelUnlocked[position] = true;
+	}
+
+	public int[] getLevelScore() {
+		return levelScore;
+	}
+
+	public void setLevelScore(int position, int score) {
+		this.levelScore[position] = score;
+	}
 
 	/**
 	 * Purpose: Tells the game what controls/information it should provide
