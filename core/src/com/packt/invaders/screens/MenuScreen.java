@@ -292,9 +292,9 @@ public class MenuScreen extends ScreenAdapter{
      * Purpose: Draws the three stars
      */
     void drawStars(float x, int score){
-        drawStar(x - 30, score > 50 ? 1 : 0);
-        drawStar(x, score > 75 ? 1 : 0);
-        drawStar(x - 30/2f, score > 90 ? 1 : 0);
+        drawStar(x - 30, score >= 50 ? 1 : 0);
+        drawStar(x, score >= 75 ? 1 : 0);
+        drawStar(x - 30/2f, score >= 85 ? 1 : 0);
     }
 
     /**

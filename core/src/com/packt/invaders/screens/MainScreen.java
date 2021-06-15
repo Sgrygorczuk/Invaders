@@ -63,8 +63,6 @@ class MainScreen extends ScreenAdapter {
     int joystickState = 0;      //Tells us the position of joy stick
     int exitButtonState = 0;    //Tells us the position of exit button
     int restartButtonState = 1; //Tells us the position of restart button
-    int nextLevelButtonState = 0; //Tells us the position of next level button
-    int currentButton = 0;
 
     //=================================== Miscellaneous Vars =======================================
     private final Array<String> levelNames = new Array<>(); //Names of all the lvls in order
@@ -79,6 +77,7 @@ class MainScreen extends ScreenAdapter {
     double deadBandits = 0; //How many bandits are dead
     int playerLive = 3;     //How many lives the player has left
     float pullDownPosition = -30; //Where the screen wipe is
+    int accuracy;
 
 
     boolean explosion = false;
@@ -355,8 +354,8 @@ class MainScreen extends ScreenAdapter {
                         invaders.unlockLevel(tiledSelection + 1);
                     }
                     //Updates score if it's bigger then previous
-                    if(invaders.getLevelScore()[tiledSelection] < (int) (shotsHit/shotFired * 100f))
-                    invaders.setLevelScore(tiledSelection, (int) (shotsHit/shotFired * 100f));
+                    if(invaders.getLevelScore()[tiledSelection] < accuracy)
+                    invaders.setLevelScore(tiledSelection, accuracy);
                 }
             }
         }
@@ -403,8 +402,9 @@ class MainScreen extends ScreenAdapter {
     Input: @delta - timing variable
     */
     private void updateGame(float delta){
-        handleInput();
-        removeBullets();
+        handleInput(delta);
+        if(player.getIsHit()){player.updateAnimation(delta);}
+        removeBullets(delta);
         for(Bullet bullet : playerBullets){ bullet.update();}
         for(Bullet bullet : banditBullets){ bullet.update();}
         updateBandits(delta);
@@ -415,7 +415,7 @@ class MainScreen extends ScreenAdapter {
     /**
      * Purpose: Central Input Handling function
      */
-    private void handleInput() {
+    private void handleInput(float delta) {
         //Moves player left and right
         if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)){
             player.update(-5);
@@ -470,11 +470,11 @@ class MainScreen extends ScreenAdapter {
     /**
      * Central function for removing bullets and enemies
      */
-    private void removeBullets(){
+    private void removeBullets(float delta){
         removePlayerBullets();
         //If all the bandits are gone pause the game and being end
         if(bandits.isEmpty()){pausedFlag = true;}
-        removeBanditBullets();
+        removeBanditBullets(delta);
     }
 
     /**
@@ -507,14 +507,13 @@ class MainScreen extends ScreenAdapter {
                 }
             }
         }
+
+        accuracy = (int) (shotsHit/shotFired * 100);
     }
 
     void banditDamage(int i){
         bandits.get(i).takeDamage();
-        if(bandits.get(i).getHealth() <= 0){
-            bandits.removeValue(bandits.get(i), true);
-            deadBandits++;
-        }
+        bandits.get(i).setHit();
         shotsHit++;
         shotFired++;
         musicControl.playSFX(1, 0.2f);
@@ -564,7 +563,7 @@ class MainScreen extends ScreenAdapter {
     /**
      * Updates and remove all the bullets shot by the enemies
      */
-    void removeBanditBullets(){
+    void removeBanditBullets(float delta){
         for(Bullet bullet : banditBullets){
             //If bullet gets off the screen kill it
             if(bullet.getY() < 0){
@@ -574,6 +573,7 @@ class MainScreen extends ScreenAdapter {
             if(player.isColliding(bullet.getHitBox())){
                 banditBullets.removeValue(bullet, true);
                 playerLive--;
+                player.setHit();
                 musicControl.playSFX(1, 0.4f);
                 if(playerLive == 0){
                     pausedFlag = true;
@@ -614,6 +614,16 @@ class MainScreen extends ScreenAdapter {
             if(bandits.get(i).getShootFlag() && i > bandits.size - 5 && bandits.get(i).getHealth() < 3){
                 createBanditBullet(bandits.get(i).getX(), bandits.get(i).getWidth(), bandits.get(i).getY() + bandits.get(i).getHeight()/3f);
                 bandits.get(i).setShootFlag();
+            }
+
+            //Updates animation
+            if(bandits.get(i).getIsHit()){
+                bandits.get(i).updateAnimation(delta);
+            }
+
+            if(bandits.get(i).isAnimationDone()){
+                bandits.removeValue(bandits.get(i), true);
+                deadBandits++;
             }
         }
 
@@ -696,7 +706,7 @@ class MainScreen extends ScreenAdapter {
         //Lives Left
         drawIconAndText(mainScreenTextures.playerProfileTexture, "" + (int) playerLive, 400, 40);
         //Accuracy
-        String accuracy = shotFired == 0 ? 100 + "%" : "" + (int) (shotsHit/shotFired * 100f) + "%";
+        String accuracy = shotFired == 0 ? 100 + "%" : "" + this.accuracy + "%";
         drawIconAndText(mainScreenTextures.accuracyTexture, accuracy, 600, 45);
     }
 
@@ -749,10 +759,10 @@ class MainScreen extends ScreenAdapter {
      */
     void drawStars(){
         drawStar(WORLD_WIDTH/2f - 75, 0,
-                deadBandits/shotFired * 100 > 50 ? 1 : 0);
-        drawStar(WORLD_WIDTH/2f, 0, shotsHit/shotFired * 100 > 75 ? 1 : 0);
+                accuracy >= 50 ? 1 : 0);
+        drawStar(WORLD_WIDTH/2f, 0, accuracy  >= 75 ? 1 : 0);
         drawStar(WORLD_WIDTH/2f - 75/2f, 20,
-                shotsHit/shotFired * 100 > 90 ? 1 : 0);
+                accuracy >= 85 ? 1 : 0);
     }
 
     /**
@@ -773,8 +783,8 @@ class MainScreen extends ScreenAdapter {
         drawWinPanel(mainScreenTextures.bulletTexture, "Shots Fired: " + (int) shotFired, 45);
         drawWinPanel(mainScreenTextures.deadBanditTexture, "Bandits Beat: " + (int) deadBandits, 75);
         drawWinPanel(mainScreenTextures.playerProfileTexture, "Lives Left: " + (int) playerLive, 115);
-        String accuracy = shotFired == 0 ? "Accuracy: 0%" : "Accuracy: " + (int) (deadBandits/shotFired * 100f) + "%";
-        drawWinPanel(mainScreenTextures.accuracyTexture,accuracy,  155);
+        String accuracy = shotFired == 0 ? "Accuracy: 0%" : "Accuracy: " + this.accuracy + "%";
+        drawWinPanel(mainScreenTextures.accuracyTexture, accuracy,  155);
     }
 
     /**

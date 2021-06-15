@@ -19,7 +19,7 @@ public class animatedObjects extends GenericObjects {
 
     protected TextureRegion[][] spriteSheet;            //The sprite sheet used
     protected Animation<TextureRegion> animation;       //The animation that will be played
-    float animationFrameTime = 4f;                      //The time between frames
+    float animationFrameTime = 9;                      //The time between frames
     float animationTime = 0;                            //Current time
     boolean isFacingRight = false;                      //Which way is it looking
     Rectangle hurtBox;  //Used by bandit and player to make the collision between bullet and themselves more precise.

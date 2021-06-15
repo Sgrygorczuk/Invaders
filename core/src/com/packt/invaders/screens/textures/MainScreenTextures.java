@@ -53,11 +53,11 @@ public class MainScreenTextures {
 
         Texture banditTexturePath = new Texture(Gdx.files.internal("Sprites/Bandit.png"));
         banditsSpriteSheet = new TextureRegion(banditTexturePath).split(
-                banditTexturePath.getWidth()/10, banditTexturePath.getHeight());
+                banditTexturePath.getWidth()/9, banditTexturePath.getHeight());
 
         Texture horseBanditTexture = new Texture(Gdx.files.internal("Sprites/EnemyHorse.png"));
         horseBanditSpriteSheet = new TextureRegion(horseBanditTexture).split(
-                horseBanditTexture.getWidth()/10, horseBanditTexture.getHeight());
+                horseBanditTexture.getWidth()/9, horseBanditTexture.getHeight());
 
         Texture dynamiteTexturePath = new Texture(Gdx.files.internal("Sprites/Dynamite.png"));
         dynamiteSpriteSheet = new TextureRegion(dynamiteTexturePath).split(
@@ -65,7 +65,7 @@ public class MainScreenTextures {
 
         Texture playerTexturePath = new Texture(Gdx.files.internal("Sprites/Player.png"));
         playerSpriteSheet = new TextureRegion(playerTexturePath).split(
-                playerTexturePath.getWidth()/10, playerTexturePath.getHeight());
+                playerTexturePath.getWidth()/9, playerTexturePath.getHeight());
 
         Texture joystickTexturePath = new Texture(Gdx.files.internal("Sprites/Joystick.png"));
         joystickSpriteSheet = new TextureRegion(joystickTexturePath).split(

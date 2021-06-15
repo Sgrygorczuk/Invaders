@@ -124,6 +124,9 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("Fruit Impact 2");
         credits.add("by OwlStorm");
         credits.add(" ");
+        credits.add("Short Explosion.wav");
+        credits.add("by animationIsaac");
+        credits.add(" ");
         credits.add(" ");
         credits.add("Thank You");
         credits.add("For Playing");

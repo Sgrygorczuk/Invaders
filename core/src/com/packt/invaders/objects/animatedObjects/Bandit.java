@@ -22,6 +22,7 @@ public class Bandit extends animatedObjects{
     private static final float SHOOT_PAUSE_MAX = 4f;    //Max amount of time to wait before ready to shoot
     private float shootTimer;   //Counter till ready to shoot again
     private int health;
+    private boolean isHit = false;
 
     //==============================================================================================
     //Constructor
@@ -50,6 +51,7 @@ public class Bandit extends animatedObjects{
 
         //Sets up the timer to prepare to shoot
         shootTimer = (float) (SHOOT_PAUSE_MIN + Math.random() * (SHOOT_PAUSE_MAX - SHOOT_PAUSE_MIN));
+
     }
 
     //==============================================================================================
@@ -60,6 +62,10 @@ public class Bandit extends animatedObjects{
     public int getHealth() { return health; }
 
     public void takeDamage(){ health--;}
+
+    public void setHit(){ isHit = true; }
+
+    public boolean getIsHit(){ return isHit; }
 
     /**
      * @param delta timing var used to update shoot timer
@@ -78,6 +84,19 @@ public class Bandit extends animatedObjects{
         //Shooting
         shootTimerMethod(delta);
     }
+
+    public void updateAnimation(float delta) {
+        if(isHit){animationTime += delta;}
+        if(animation.getKeyFrame(animationTime) == spriteSheet[0][8] && health > 0){
+            isHit = false;
+            animationTime = 0;
+        }
+    }
+
+    public boolean isAnimationDone(){
+        return animation.isAnimationFinished(animationTime);
+    }
+
 
     /**
      * Counts down until we can start raining again
