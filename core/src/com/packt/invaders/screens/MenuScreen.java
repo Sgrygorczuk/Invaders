@@ -64,9 +64,9 @@ public class MenuScreen extends ScreenAdapter{
     int joystickState = 0;                      //Changes how the joystick is viewed, 0 - Natural, 1 - left, 2 - right
     int buttonState = 0;                        //Changes how the button is view 0 - Button Up, 1 - Button Down
     float pullDownPosition = WORLD_HEIGHT + 20; //Keeps track of where the wipe is
-    float cloudXPosition = 0;
-    int levelChoice;
-    private Train train;
+    float cloudXPosition = 0;                   //Keeps track of where how far the clouds have moved
+    int levelChoice;                            //Where the player will go
+    private Train train;                        //The train player controls
 
     //================================ Set Up ======================================================
 
@@ -144,7 +144,6 @@ public class MenuScreen extends ScreenAdapter{
     private void update(float delta){
         handleInput();
         if(buttonState == 1){updatePullDown();}
-        System.out.println(cloudXPosition);
     }
 
     /**
@@ -154,12 +153,12 @@ public class MenuScreen extends ScreenAdapter{
         //Moves the joy stick left and right and if there's no input keeps it in neutral
         if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)){
             joystickState = 1;
-            train.moveTrain(-5);
+            train.moveTrain(-5, false);
             cloudXPosition += 5;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             joystickState = 2;
-            train.moveTrain(5);
+            train.moveTrain(5, false);
             cloudXPosition -= 5;
         }
         else{
@@ -200,6 +199,9 @@ public class MenuScreen extends ScreenAdapter{
         }
     }
 
+    /**
+     * Looks at where the player is and if the level is unlocked and then sned the player there
+     */
     void levelSelect(){
         if(cloudXPosition <= 0 && cloudXPosition >= -100 && invaders.getLevelUnlocked()[0]){
             levelChoice = 0;
@@ -225,6 +227,9 @@ public class MenuScreen extends ScreenAdapter{
             levelChoice = 4;
             buttonState = 1;
             musicControl.playSFX(2, 1.5f);
+        }
+        else{
+            musicControl.playSFX(5, 1);
         }
     }
 
@@ -254,6 +259,9 @@ public class MenuScreen extends ScreenAdapter{
         batch.end();
     }
 
+    /**
+     * Purpose: Draws all of the clouds
+     */
     private void drawLevelSelect(){
         for(int i = 0; i < 4; i++){
             drawCloud(WORLD_WIDTH/2f - menuScreenTextures.cloudTexture.getWidth()/2f + 250 * i, i);
@@ -261,18 +269,28 @@ public class MenuScreen extends ScreenAdapter{
         drawCreditCloud(WORLD_WIDTH/2f - menuScreenTextures.cloudTexture.getWidth()/2f + 250 * 4);
     }
 
+    /**
+     * @param x it's x position
+     * @param spot it's position in the array
+     * Purpose: Create a level clouds
+     */
     private void drawCloud(float x, int spot){
+        //Draws the clouds
         batch.draw(menuScreenTextures.cloudTexture, x + cloudXPosition,
                 WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight());
+        //If the level is unlocked
         if(invaders.getLevelUnlocked()[spot]){
+            //If the level is unlocked and is scored  draw stars
             if(invaders.getLevelScore()[spot] != -1){
                 drawStars(x + menuScreenTextures.cloudTexture.getWidth()/2f + cloudXPosition,
                         invaders.getLevelScore()[spot]);
             }
+            //Draw the level number
             textAlignment.centerText(batch, bitmapFont, spot + 1 + "",
                     x + menuScreenTextures.cloudTexture.getWidth()/2f + cloudXPosition,
                     WORLD_HEIGHT-menuScreenTextures.cloudTexture.getHeight()/2f);
         }
+        //If the level is lock draw a lock
         else{
             batch.draw(menuScreenTextures.lockTexture,
                     x + menuScreenTextures.cloudTexture.getWidth()/3f + cloudXPosition,

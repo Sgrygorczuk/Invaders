@@ -18,12 +18,16 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.packt.invaders.main.Invaders;
 import com.packt.invaders.objects.animatedObjects.Bandit;
 import com.packt.invaders.objects.animatedObjects.Player;
+import com.packt.invaders.objects.staticObjects.BagBandit;
 import com.packt.invaders.objects.staticObjects.Bullet;
+import com.packt.invaders.objects.staticObjects.Train;
 import com.packt.invaders.screens.textures.MainScreenTextures;
 import com.packt.invaders.tools.DebugRendering;
 import com.packt.invaders.tools.MusicControl;
 import com.packt.invaders.tools.TextAlignment;
 import com.packt.invaders.tools.TiledSetUp;
+
+import java.util.Random;
 
 import static com.packt.invaders.Const.WORLD_HEIGHT;
 import static com.packt.invaders.Const.WORLD_WIDTH;
@@ -77,14 +81,17 @@ class MainScreen extends ScreenAdapter {
     double deadBandits = 0; //How many bandits are dead
     int playerLive = 3;     //How many lives the player has left
     float pullDownPosition = -30; //Where the screen wipe is
-    int accuracy;
+    int accuracy;                 //Keeps track of shots hit/shots missed
 
+    boolean explosion = false;                      //Tells the explosion to show up
+    float explosionX = 0;                           //Where it should take place
+    float explosionY = 0;                           //Where it should take place
+    private static final float BOOM_TIME = 0.25f;   //How long it should stay on screen for
+    private float boomTimer = BOOM_TIME;            //Time counter
 
-    boolean explosion = false;
-    float explosionX = 0;
-    float explosionY = 0;
-    private static final float BOOM_TIME = 0.25f;
-    private float boomTimer = BOOM_TIME;
+    private Train train;        //The end game train
+    private Array<BagBandit> bagBandits = new Array<>();  //List of enemy bullets
+    private boolean banditDirection = false;
 
 
     //==============================================================================================
@@ -93,7 +100,7 @@ class MainScreen extends ScreenAdapter {
 
     /**
      * Purpose: Grabs the info from main screen that holds asset manager
-     * Input: BasicTemplet
+     * Input: invaders
     */
     MainScreen(Invaders invaders, int tiledSelection) {
         this.invaders = invaders;
@@ -142,6 +149,12 @@ class MainScreen extends ScreenAdapter {
     private void showTiled() {
         tiledSetUp = new TiledSetUp(invaders.getAssetManager(), batch, levelNames.get(tiledSelection));
 
+        /**
+         * The Enemy name data is given by two chars, first is distance/size and the other is enemy time
+         * 10 - (1) The smallest size, (0) regular bandit
+         * 21 - (2) Slightly Bigger, (1) on horse bandit
+         * 32 - (3) Almost Largest, (2) TNT
+         */
         Array<Vector2> banditsPositions = tiledSetUp.getLayerCoordinates("Bandits");
         Array<String> banditsNames = tiledSetUp.getLayerNames("Bandits");
         for(int i = 0; i < banditsPositions.size; i++){
@@ -179,6 +192,11 @@ class MainScreen extends ScreenAdapter {
         return mod;
     }
 
+    /**
+     * @param texture the choice
+     * @return Gives back the sprite sheet
+     * Purpose: Pick the right sprite sheet to attach to the enemy
+     */
     private TextureRegion[][] getTexture(Character texture){
         TextureRegion[][] textureRegion = mainScreenTextures.banditsSpriteSheet;
         switch (texture){
@@ -198,6 +216,11 @@ class MainScreen extends ScreenAdapter {
         return textureRegion;
     }
 
+    /**
+     * @param health the choice
+     * @return the health amount the enemy will have
+     * Purpose: Based on the data figure out what the enemy health is
+     */
     int setHealth(Character health){
         if(health == '1'){
             return 2;
@@ -286,7 +309,40 @@ class MainScreen extends ScreenAdapter {
      */
     private void updatePause(){
         updatePullDown();
-        if(gameState == 1){updatePauseInput();}
+        if(gameState == 1){
+            updatePauseInput();
+            if(!lostFlag){updateTrain();}
+            else{ updateBagBandits(); }
+        }
+    }
+
+    /**
+     * Purpose: If the player won the train will be driving by the back of the screen
+     */
+    private void updateTrain(){
+        train.moveTrain(5, true);
+        if(train.getX() > WORLD_WIDTH + 2 * train.getWidth()){
+            train.move(0 - train.getWidth());
+        }
+    }
+
+    /**
+     * Purpose: If player lost bandit will come out with sack of money
+     */
+    private void updateBagBandits(){
+        //Create some bandits
+        if(bagBandits.size < 4){
+            bagBandits.add(new BagBandit(WORLD_WIDTH/2f, WORLD_HEIGHT/2f,
+                mainScreenTextures.bagBanditTexture, banditDirection));
+            banditDirection = !banditDirection;}
+
+        //Update them and if they're off screen remove them
+        for(BagBandit bagBandit : bagBandits){
+            bagBandit.update();
+            if(bagBandit.getX() + bagBandit.getWidth() < 0 || bagBandit.getX() > WORLD_WIDTH){
+                bagBandits.removeValue(bagBandit, true);
+            }
+        }
     }
 
     /**
@@ -310,53 +366,73 @@ class MainScreen extends ScreenAdapter {
         }
         else{
             pullDownPosition -= 10;
-
             //If the game has ended and the screen is down move to a different screen or reload
-            if(pullDownPosition <= -30 && gameState == 1){
-                if(!lostFlag && tiledSelection < 3){
-                    //Reload this level
-                    if(restartButtonState == 2){
-                        musicControl.stopMusic();
-                        invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
-                    }
-                    //To the Next Level
-                    else if(exitButtonState == 2){
-                        musicControl.stopMusic();
-                        invaders.setScreen(new LoadingScreen(invaders, 1,
-                                tiledSelection + 1));
-                    }
-                }
-                else{
-                    //Reload this level
-                    if(restartButtonState == 2){
-                        musicControl.stopMusic();
-                        invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
-                    }
-                    //Back to Main Menu
-                    else if(exitButtonState == 2){
-                        musicControl.stopMusic();
-                        invaders.setScreen(new LoadingScreen(invaders, 0));
-                    }
-                }
+            if(pullDownPosition <= -30 && gameState == 1){ screenExit(); }
+            winOrLose();
+
+        }
+    }
+
+    /**
+     * Chooses where to go upon exiting the level
+     */
+    void screenExit(){
+        //If we wont the game and this isn't the last level make the button be to next lvl
+        if(!lostFlag && tiledSelection < 3){
+            //Reload this level
+            if(restartButtonState == 2){
+                musicControl.stopMusic();
+                invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
             }
+            //To the Next Level
+            else if(exitButtonState == 2){
+                musicControl.stopMusic();
+                invaders.setScreen(new LoadingScreen(invaders, 1,
+                        tiledSelection + 1));
+            }
+        }
+        //Otherwise make the second button exit to main menu
+        else{
+            //Reload this level
+            if(restartButtonState == 2){
+                musicControl.stopMusic();
+                invaders.setScreen(new LoadingScreen(invaders, 1, tiledSelection));
+            }
+            //Back to Main Menu
+            else if(exitButtonState == 2){
+                musicControl.stopMusic();
+                invaders.setScreen(new LoadingScreen(invaders, 0));
+            }
+        }
+    }
 
-            //If the game just ended wipe and update font to display the stats
-            if(pullDownPosition <= -30){
-                pullDownGoingUp = true;
-                gameState = 1;
-                bitmapFont.setColor(Color.WHITE);
-                bitmapFont.getData().setScale(0.6f);
+    /**
+     * Purpose: After the game ended updates how the menu should look like and saves scores if
+     * the player won
+     */
+    void winOrLose(){
+        //If the game just ended wipe and update font to display the stats
+        if(pullDownPosition <= -30){
+            pullDownGoingUp = true;
+            gameState = 1;
+            bitmapFont.setColor(Color.WHITE);
+            bitmapFont.getData().setScale(0.6f);
 
-                //Save the data if the player won
-                if(!lostFlag) {
-                    //Unlocks next level
-                    if (tiledSelection < 3) {
-                        invaders.unlockLevel(tiledSelection + 1);
-                    }
-                    //Updates score if it's bigger then previous
-                    if(invaders.getLevelScore()[tiledSelection] < accuracy)
-                    invaders.setLevelScore(tiledSelection, accuracy);
+            //Save the data if the player won
+            if(!lostFlag) {
+                //Set up train to be driven around
+                train = new Train(-mainScreenTextures.trainTexture.getWidth(),
+                        WORLD_HEIGHT/2f,
+                        mainScreenTextures.trainTexture,
+                        mainScreenTextures.wheelTexture);
+
+                //Unlocks next level
+                if (tiledSelection < 3) {
+                    invaders.unlockLevel(tiledSelection + 1);
                 }
+                //Updates score if it's bigger then previous
+                if(invaders.getLevelScore()[tiledSelection] < accuracy)
+                    invaders.setLevelScore(tiledSelection, accuracy);
             }
         }
     }
@@ -511,6 +587,10 @@ class MainScreen extends ScreenAdapter {
         accuracy = (int) (shotsHit/shotFired * 100);
     }
 
+    /**
+     * @param i the index of the bandit
+     * Purpose: To damage a bandit in a regular way
+     */
     void banditDamage(int i){
         bandits.get(i).takeDamage();
         bandits.get(i).setHit();
@@ -519,6 +599,10 @@ class MainScreen extends ScreenAdapter {
         musicControl.playSFX(1, 0.2f);
     }
 
+    /**
+     * @param i the index of the bandit
+     * Purpose: To damage the bandit using TNT
+     */
     void explosion(int i){
         explosionY = bandits.get(i).getY();
         explosionX = bandits.get(i).getX();
@@ -732,6 +816,13 @@ class MainScreen extends ScreenAdapter {
      */
     void drawEndScreen(){
         batch.draw(mainScreenTextures.menuBackgroundTexture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        if(!lostFlag){train.draw(batch);}
+        else {
+            for (BagBandit bagBandit : bagBandits) {
+                bagBandit.draw(batch);
+            }
+        }
+        batch.draw(mainScreenTextures.coversTexture, 0, WORLD_HEIGHT-mainScreenTextures.coversTexture.getHeight());
         batch.draw(mainScreenTextures.joystickSpriteSheet[0][joystickState], 100, 80);
         if(tiledSelection < 3 && !lostFlag) {
             batch.draw(mainScreenTextures.restartButtonSpriteSheet[0][restartButtonState], 300, 80);

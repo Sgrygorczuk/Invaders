@@ -21,8 +21,8 @@ public class Bandit extends animatedObjects{
     private static final float SHOOT_PAUSE_MIN = 1f;    //Min amount of time to wait before ready to shoot
     private static final float SHOOT_PAUSE_MAX = 4f;    //Max amount of time to wait before ready to shoot
     private float shootTimer;   //Counter till ready to shoot again
-    private int health;
-    private boolean isHit = false;
+    private int health;         //How many times i can be hit
+    private boolean isHit = false;  //Is it spinning
 
     //==============================================================================================
     //Constructor
@@ -58,13 +58,26 @@ public class Bandit extends animatedObjects{
     //Methods
     //==============================================================================================
 
-
+    /**
+     * @return the enemy current health
+     * Purpose: Returns the current health
+     */
     public int getHealth() { return health; }
 
+    /**
+     * Purpose: Lower the current health by 1
+     */
     public void takeDamage(){ health--;}
 
+    /**
+     * Purpose: Allow the animation to play out
+     */
     public void setHit(){ isHit = true; }
 
+    /**
+     * @return is the player currently spinning
+     * Purpose: Tell us if the animation is playing out
+     */
     public boolean getIsHit(){ return isHit; }
 
     /**
@@ -85,14 +98,23 @@ public class Bandit extends animatedObjects{
         shootTimerMethod(delta);
     }
 
+    /**
+     * @param delta timing var
+     * Purpose: Updates the animation if the enemy is hit
+     */
     public void updateAnimation(float delta) {
         if(isHit){animationTime += delta;}
+        //Make sure the enemy is above 0 health, if it's 0 don't reset the animation
         if(animation.getKeyFrame(animationTime) == spriteSheet[0][8] && health > 0){
             isHit = false;
             animationTime = 0;
         }
     }
 
+    /**
+     * @return tells us if animation is done
+     * Purpose: Used to check if the enemy is ready to be killed
+     */
     public boolean isAnimationDone(){
         return animation.isAnimationFinished(animationTime);
     }

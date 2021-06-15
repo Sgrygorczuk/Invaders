@@ -127,6 +127,9 @@ public class CreditsScreen extends ScreenAdapter{
         credits.add("Short Explosion.wav");
         credits.add("by animationIsaac");
         credits.add(" ");
+        credits.add("INDUSTHIT021.wav");
+        credits.add("by mitchelk");
+        credits.add(" ");
         credits.add(" ");
         credits.add("Thank You");
         credits.add("For Playing");

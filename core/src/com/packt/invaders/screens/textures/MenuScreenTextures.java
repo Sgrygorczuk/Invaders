@@ -17,7 +17,7 @@ public class MenuScreenTextures {
     public Texture wheelTexture;            //Texture of the wheel
     public Texture cloudTexture;        //The clouds that hold the stat values
     public Texture lockTexture;        //The clouds that hold the stat values
-    public Texture coversTexture;
+    public Texture coversTexture;      //Hides the clouds behind the wood
 
     //================================ Sprite Sheets ===============================================
     public TextureRegion[][] buttonSpriteSheet;     //The button

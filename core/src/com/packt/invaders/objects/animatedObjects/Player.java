@@ -12,7 +12,7 @@ import static com.packt.invaders.Const.WORLD_WIDTH;
  */
 public class Player extends animatedObjects{
 
-    boolean isHit = false;
+    boolean isHit = false;  //Checks if the animation is playing out
 
     //==============================================================================================
     //Constructor
@@ -61,6 +61,10 @@ public class Player extends animatedObjects{
 
     }
 
+    /**
+     * @param delta timing var
+     * Purpose: Update the animation if the player took damage
+     */
     public void updateAnimation(float delta){
         if(isHit){ animationTime += delta; }
         if(animation.getKeyFrame(animationTime) == spriteSheet[0][8]){

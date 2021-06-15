@@ -30,6 +30,7 @@ public class MusicControl {
             "SFX/Coin.wav",     //2
             "SFX/Thud.wav",     //3
             "SFX/Boom.wav",     //4
+            "SFX/Break.wav",    //5
     };
 
     //====================================== Constructor ===========================================

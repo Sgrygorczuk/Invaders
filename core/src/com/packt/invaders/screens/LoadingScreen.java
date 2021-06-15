@@ -152,6 +152,7 @@ public class LoadingScreen extends ScreenAdapter{
         invaders.getAssetManager().load("SFX/Coin.wav", Sound.class);
         invaders.getAssetManager().load("SFX/Thud.wav", Sound.class);
         invaders.getAssetManager().load("SFX/Boom.wav", Sound.class);
+        invaders.getAssetManager().load("SFX/Break.wav", Sound.class);
 
         //========================= Load Tiled Maps ================================================
         invaders.getAssetManager().load("Tiled/Map1.tmx", TiledMap.class);

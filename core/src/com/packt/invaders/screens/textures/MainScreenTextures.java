@@ -20,7 +20,12 @@ public class MainScreenTextures {
     public Texture cloudTexture;        //The clouds that hold the stat values
     public Texture engGamePanelTexture; //The Square panel where all the stats are shown at end of game
     public Texture skullTexture;        //The skull that's show when player loes
-    public Texture boomTexture;
+    public Texture boomTexture;         //The texture of the explosion
+    public Texture trainTexture;            //Texture of the train
+    public Texture wheelTexture;            //Texture of the wheel
+    public Texture coversTexture;      //Hides the clouds behind the wood
+    public Texture bagBanditTexture;      //Hides the clouds behind the wood
+
 
     //================================ Sprite Sheets ===============================================
     public TextureRegion[][] banditsSpriteSheet;        //Bandit sprite sheet
@@ -31,7 +36,7 @@ public class MainScreenTextures {
     public TextureRegion[][] starSpriteSheet;           //The empty or filled star
     public TextureRegion[][] restartButtonSpriteSheet;  //Reset button
     public TextureRegion[][] exitButtonSpriteSheet;     //Exit button
-    public TextureRegion[][] nextLevelButtonSpriteSheet;     //Next Level button
+    public TextureRegion[][] nextLevelButtonSpriteSheet;  //Next Level button
 
     public MainScreenTextures(){ showTextures(); }
 
@@ -50,6 +55,10 @@ public class MainScreenTextures {
         menuBackgroundTexture = new Texture(Gdx.files.internal("Sprites/MenuScreenBackground.png"));
         pullDownTexture = new Texture(Gdx.files.internal("Sprites/PullDown.png"));
         boomTexture = new Texture(Gdx.files.internal("Sprites/Boom.png"));
+        wheelTexture = new Texture(Gdx.files.internal("Sprites/TrainWheel.png"));
+        trainTexture = new Texture(Gdx.files.internal("Sprites/Train.png"));
+        coversTexture = new Texture(Gdx.files.internal("Sprites/HiddenWall.png"));
+        bagBanditTexture = new Texture(Gdx.files.internal("Sprites/BanditWithMoney.png"));
 
         Texture banditTexturePath = new Texture(Gdx.files.internal("Sprites/Bandit.png"));
         banditsSpriteSheet = new TextureRegion(banditTexturePath).split(

@@ -44,36 +44,38 @@ public class Train extends staticObjects{
      * Update the position of the train and the rotation to of the wheels
      * @param speed how fast the train is moving
      */
-    public void moveTrain(float speed){
-        //hitBox.x += speed;
+    public void moveTrain(float speed, boolean drive){
+        if(drive){hitBox.x += speed;}
         wheelOne.setPosition(hitBox.x + 10, hitBox.y - 10);
         wheelTwo.setPosition(hitBox.x + hitBox.width - 120, hitBox.y - 10);
-
-        if(hitBox.x <= 80){
-            hitBox.x = 80;
-        }
-
-        if(hitBox.x + hitBox.width >= 720){
-            hitBox.x = 720 - hitBox.width;
-        }
 
         //Update the rotation based on which way we're moving
         if(speed > 0){
             if(wheelRotation > 0){
                 wheelRotation = -10;
             }
-            wheelRotation -= 0.1;
+            wheelRotation -= 0.05;
         }
         else if(speed < 0){
             if(wheelRotation < 0){
                 wheelRotation = 10;
             }
-            wheelRotation += 0.1;
+            wheelRotation += 0.05;
         }
 
         //Pass along the value to the wheels
         wheelOne.rotate(wheelRotation);
         wheelTwo.rotate(wheelRotation);
+    }
+
+    /**
+     * @param x the given position
+     * Purpose: Moves the train to a different position
+     */
+    public void move(float x){
+        hitBox.x = x;
+        wheelOne.setPosition(hitBox.x + 10, hitBox.y - 10);
+        wheelTwo.setPosition(hitBox.x + hitBox.width - 120, hitBox.y - 10);
     }
 
     /**
