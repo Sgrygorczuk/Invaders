@@ -69,6 +69,6 @@ important folders.
 ```
 
 
-Copyright © 2020 [Sebastian Grygorczuk](https://orczuk.github.io/)
+Copyright © 2021 [Sebastian Grygorczuk](https://orczuk.github.io/)
 
 Released under [GPLv3](gpl-3.0.txt)
