@@ -1,11 +1,28 @@
 # Train Invaders
 
+![Train Invaders](https://img.itch.zone/aW1nLzYyNzM2NjkucG5n/original/EN1HPC.png)
+
+Greedy Gobo has his sights set on a nearby Abby that's teaming to the brim with coin. 
+Can you be the Evil Overlord that will lead him to building up his treasured horde or will you let your loyal servant down by swiping mere pennies to the coffers?
+
+Play:
+
+- [Itch.io](https://orczuk.itch.io/train-invaders)
+
+Screenshots:
+
+<img src="https://img.itch.zone/aW1hZ2UvMTA2OTU1NS82MjczNzMxLnBuZw==/347x500/Z%2BItq%2F.png">
+<img src="https://img.itch.zone/aW1hZ2UvMTA2OTU1NS82MjczNzI5LnBuZw==/347x500/EZB4Jb.png">
+
+Video: 
+- [Train Invaders Gameplay](https://www.youtube.com/watch?v=_oBLwZcszJY)
+
 Controls:
-```
   A/Left Arrow Key - Move Left
   D/Right Arrow Key - Move Right
   Space - Action/Shoot 
 
+```
 Idea Summary: 
 Train Invaders is a Space Invader like game with a twist of using a 2.5D perspective. Rather than 
 the enemies slowly flying down from the top of the screen to the bottom now they do that but 
@@ -50,3 +67,8 @@ important folders.
                 and filling the enemies with data without having to create them by hand. 
                 
 ```
+
+
+Copyright © 2020 [Sebastian Grygorczuk](https://orczuk.github.io/)
+
+Released under [GPLv3](gpl-3.0.txt)
