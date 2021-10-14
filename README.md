@@ -2,8 +2,7 @@
 
 ![Train Invaders](https://img.itch.zone/aW1nLzYyNzM2NjkucG5n/original/EN1HPC.png)
 
-Greedy Gobo has his sights set on a nearby Abby that's teaming to the brim with coin. 
-Can you be the Evil Overlord that will lead him to building up his treasured horde or will you let your loyal servant down by swiping mere pennies to the coffers?
+The train is under attack by Red Scarf Skulls! Sheriff, you have to save us! Embark on Space Invaders-inspired arcade journey that challenges a lonesome Sheriff against a gang of hoodlums. 
 
 Play:
 
